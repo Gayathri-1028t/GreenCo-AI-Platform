@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root, .dark {
+  --bg: #f8fafc;
+  --surface: #ffffff;
+  --card: #ffffff;
+  --text: #0f172a;
+  --text-secondary: #64748b;
+  --primary: #16a34a;
+  --border: #e5e7eb;
+}
+
+@layer base {
+  body {
+    @apply bg-[#f8fafc] text-[#0f172a] transition-colors duration-300;
+  }
+}
+
+@keyframes mapMarkerPulse {
+  0% { transform: scale(0.75); opacity: 1; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+.marker-pulse-effect {
+  animation: mapMarkerPulse 1.8s ease-out infinite;
+}

@@ -1,0 +1,125 @@
+version: '3.8'
+
+services:
+  # 1. Database Service (MySQL 8)
+  database:
+    image: mysql:8.2
+    container_name: greenco-db
+    environment:
+      MYSQL_DATABASE: greenco_db
+      MYSQL_ROOT_PASSWORD: rootpassword
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - greenco-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpassword"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # 2. Cache Service (Redis)
+  cache:
+    image: redis:7.2-alpine
+    container_name: greenco-cache
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - greenco-network
+
+  # 3. Object Storage Service (MinIO)
+  storage:
+    image: minio/minio:RELEASE.2024-01-28T22-35-53Z
+    container_name: greenco-minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio-data:/data
+    networks:
+      - greenco-network
+
+  # 4. Message Broker (RabbitMQ)
+  broker:
+    image: rabbitmq:3.12-management-alpine
+    container_name: greenco-broker
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    networks:
+      - greenco-network
+
+  # 5. Backend REST Service (Spring Boot)
+  backend:
+    build:
+      context: ./Backend
+      dockerfile: Dockerfile
+    container_name: greenco-backend
+    ports:
+      - "8080:8080"
+    depends_on:
+      database:
+        condition: service_healthy
+      cache:
+        condition: service_started
+      storage:
+        condition: service_started
+      broker:
+        condition: service_started
+    environment:
+      - DB_HOST=database
+      - DB_PORT=3306
+      - DB_NAME=greenco_db
+      - DB_USER=root
+      - DB_PASSWORD=rootpassword
+      - REDIS_HOST=cache
+      - REDIS_PORT=6379
+      - JWT_SECRET=404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+      - AWS_S3_ENDPOINT=http://storage:9000
+      - AWS_ACCESS_KEY_ID=minioadmin
+      - AWS_SECRET_ACCESS_KEY=minioadmin
+      - AWS_S3_BUCKET=greenco-documents-bucket
+      - RABBITMQ_HOST=broker
+    volumes:
+      - upload-data:/app/greenco-uploads
+    networks:
+      - greenco-network
+
+  # 6. Frontend Client Proxy (Nginx + React)
+  frontend:
+    build:
+      context: ./Frontend
+      dockerfile: Dockerfile
+    container_name: greenco-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - greenco-network
+
+volumes:
+  mysql-data:
+    driver: local
+  redis-data:
+    driver: local
+  minio-data:
+    driver: local
+  rabbitmq-data:
+    driver: local
+  upload-data:
+    driver: local
+
+networks:
+  greenco-network:
+    driver: bridge

@@ -1,0 +1,491 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
+
+    <!-- ChangeSet 1: Core Authentication & RBAC Tables -->
+    <changeSet id="1" author="greenco-dev">
+        <createTable tableName="permissions">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="code" type="VARCHAR(50)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="description" type="VARCHAR(255)"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        </createTable>
+
+        <createTable tableName="roles">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(50)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="description" type="VARCHAR(255)"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        </createTable>
+
+        <createTable tableName="role_permissions">
+            <column name="role_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="permission_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addPrimaryKey tableName="role_permissions" columnNames="role_id, permission_id" constraintName="pk_role_permissions"/>
+
+        <createTable tableName="users">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="email" type="VARCHAR(150)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="password_hash" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="first_name" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_name" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="company_id" type="BIGINT"/>
+            <column name="status" type="VARCHAR(30)" defaultValue="ACTIVE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="version" type="INT" defaultValue="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        </createTable>
+
+        <createTable tableName="user_roles">
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="role_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addPrimaryKey tableName="user_roles" columnNames="user_id, role_id" constraintName="pk_user_roles"/>
+
+        <createTable tableName="refresh_tokens">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="token" type="VARCHAR(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="expiry_date" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="revoked" type="BOOLEAN" defaultValue="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        </createTable>
+    </changeSet>
+
+    <!-- ChangeSet 2: Companies & Factories Infrastructure Tables -->
+    <changeSet id="2" author="greenco-dev">
+        <createTable tableName="companies">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="legal_name" type="VARCHAR(150)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="registration_number" type="VARCHAR(100)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="tax_id" type="VARCHAR(100)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="headquarters_address" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="website" type="VARCHAR(255)"/>
+            <column name="status" type="VARCHAR(30)" defaultValue="PENDING_APPROVAL">
+                <constraints nullable="false"/>
+            </column>
+            <column name="version" type="INT" defaultValue="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="deleted_at" type="TIMESTAMP"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        </createTable>
+
+        <createTable tableName="factories">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="company_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sector_type" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="address" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="latitude" type="DECIMAL(9, 6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="longitude" type="DECIMAL(9, 6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="building_area_sqm" type="DECIMAL(12, 2)"/>
+            <column name="employee_count" type="INT"/>
+            <column name="status" type="VARCHAR(30)" defaultValue="ACTIVE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="version" type="INT" defaultValue="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="deleted_at" type="TIMESTAMP"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        </createTable>
+
+        <createTable tableName="factory_baselines">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="factory_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="baseline_year" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="electricity_consumption_kwh" type="DECIMAL(15, 2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="water_consumption_kl" type="DECIMAL(15, 2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="waste_generated_mt" type="DECIMAL(12, 2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="version" type="INT" defaultValue="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        </createTable>
+        <addUniqueConstraint tableName="factory_baselines" columnNames="factory_id, baseline_year" constraintName="uk_factory_baseline_year"/>
+    </changeSet>
+
+    <!-- ChangeSet 3: Assessments & Parameters Tables -->
+    <changeSet id="3" author="greenco-dev">
+        <createTable tableName="assessments">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="factory_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="VARCHAR(30)" defaultValue="DRAFT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="rating_version" type="VARCHAR(10)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="score_achieved" type="DECIMAL(6, 2)" defaultValue="0.00"/>
+            <column name="rating_level" type="VARCHAR(30)"/>
+            <column name="version" type="INT" defaultValue="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="submitted_at" type="TIMESTAMP"/>
+            <column name="deleted_at" type="TIMESTAMP"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        </createTable>
+
+        <createTable tableName="assessment_parameters">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="pillar_name" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="parameter_code" type="VARCHAR(50)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="description" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="max_score" type="DECIMAL(5, 2)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="assessment_responses">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="assessment_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="parameter_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="entered_value" type="DECIMAL(15, 4)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="calculated_points" type="DECIMAL(5, 2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="auditor_comment" type="TEXT"/>
+            <column name="is_overridden" type="BOOLEAN" defaultValue="false"/>
+            <column name="override_reason" type="TEXT"/>
+            <column name="version" type="INT" defaultValue="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        </createTable>
+        <addUniqueConstraint tableName="assessment_responses" columnNames="assessment_id, parameter_id" constraintName="uk_assessment_parameter"/>
+    </changeSet>
+
+    <!-- ChangeSet 4: Documents, AI Audit & Verification Logs -->
+    <changeSet id="4" author="greenco-dev">
+        <createTable tableName="documents">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="assessment_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="parameter_code" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="file_name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="s3_bucket_key" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="file_size_bytes" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="mime_type" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="VARCHAR(30)" defaultValue="PENDING_SCAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="uploaded_by_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="deleted_at" type="TIMESTAMP"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        </createTable>
+
+        <createTable tableName="ai_analysis_results">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="document_id" type="BIGINT">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="confidence_score" type="DECIMAL(5, 2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="VARCHAR(30)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="extracted_text_json" type="JSON"/>
+            <column name="anomaly_flags_json" type="JSON"/>
+            <column name="analyzed_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        </createTable>
+
+        <createTable tableName="workflow_histories">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="assessment_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="from_status" type="VARCHAR(30)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="to_status" type="VARCHAR(30)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="assigned_to_id" type="BIGINT"/>
+            <column name="comment" type="TEXT"/>
+            <column name="transition_date" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        </createTable>
+
+        <createTable tableName="certificates">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="company_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="factory_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="assessment_id" type="BIGINT">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="certificate_number" type="VARCHAR(100)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="rating_level" type="VARCHAR(30)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="score_achieved" type="DECIMAL(6, 2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="issue_date" type="DATE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="expiry_date" type="DATE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="VARCHAR(30)" defaultValue="ACTIVE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="pdf_url" type="VARCHAR(255)"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        </createTable>
+    </changeSet>
+
+    <!-- ChangeSet 5: Indexes & Foreign Key Constraints -->
+    <changeSet id="5" author="greenco-dev">
+        <!-- Indexes -->
+        <createIndex tableName="permissions" indexName="idx_permissions_code">
+            <column name="code"/>
+        </createIndex>
+        <createIndex tableName="roles" indexName="idx_roles_name">
+            <column name="name"/>
+        </createIndex>
+        <createIndex tableName="users" indexName="idx_users_email">
+            <column name="email"/>
+        </createIndex>
+        <createIndex tableName="companies" indexName="idx_companies_status">
+            <column name="status"/>
+        </createIndex>
+        <createIndex tableName="factories" indexName="idx_factories_company">
+            <column name="company_id"/>
+        </createIndex>
+        <createIndex tableName="assessments" indexName="idx_assessments_status">
+            <column name="status"/>
+        </createIndex>
+        <createIndex tableName="assessment_parameters" indexName="idx_parameters_code">
+            <column name="parameter_code"/>
+        </createIndex>
+        <createIndex tableName="documents" indexName="idx_documents_assessment">
+            <column name="assessment_id"/>
+        </createIndex>
+        <createIndex tableName="workflow_histories" indexName="idx_workflow_assessment">
+            <column name="assessment_id"/>
+        </createIndex>
+
+        <!-- Foreign Keys -->
+        <addForeignKeyConstraint baseTableName="role_permissions" baseColumnNames="role_id" constraintName="fk_role_permissions_role" referencedTableName="roles" referencedColumnNames="id" onDelete="CASCADE"/>
+        <addForeignKeyConstraint baseTableName="role_permissions" baseColumnNames="permission_id" constraintName="fk_role_permissions_permission" referencedTableName="permissions" referencedColumnNames="id" onDelete="CASCADE"/>
+        <addForeignKeyConstraint baseTableName="user_roles" baseColumnNames="user_id" constraintName="fk_user_roles_user" referencedTableName="users" referencedColumnNames="id" onDelete="CASCADE"/>
+        <addForeignKeyConstraint baseTableName="user_roles" baseColumnNames="role_id" constraintName="fk_user_roles_role" referencedTableName="roles" referencedColumnNames="id" onDelete="CASCADE"/>
+        <addForeignKeyConstraint baseTableName="refresh_tokens" baseColumnNames="user_id" constraintName="fk_refresh_tokens_user" referencedTableName="users" referencedColumnNames="id" onDelete="CASCADE"/>
+        <addForeignKeyConstraint baseTableName="factories" baseColumnNames="company_id" constraintName="fk_factories_company" referencedTableName="companies" referencedColumnNames="id" onDelete="CASCADE"/>
+        <addForeignKeyConstraint baseTableName="factory_baselines" baseColumnNames="factory_id" constraintName="fk_baselines_factory" referencedTableName="factories" referencedColumnNames="id" onDelete="CASCADE"/>
+        <addForeignKeyConstraint baseTableName="assessments" baseColumnNames="factory_id" constraintName="fk_assessments_factory" referencedTableName="factories" referencedColumnNames="id" onDelete="CASCADE"/>
+        <addForeignKeyConstraint baseTableName="assessment_responses" baseColumnNames="assessment_id" constraintName="fk_responses_assessment" referencedTableName="assessments" referencedColumnNames="id" onDelete="CASCADE"/>
+        <addForeignKeyConstraint baseTableName="assessment_responses" baseColumnNames="parameter_id" constraintName="fk_responses_parameter" referencedTableName="assessment_parameters" referencedColumnNames="id" onDelete="CASCADE"/>
+        <addForeignKeyConstraint baseTableName="documents" baseColumnNames="assessment_id" constraintName="fk_documents_assessment" referencedTableName="assessments" referencedColumnNames="id" onDelete="CASCADE"/>
+        <addForeignKeyConstraint baseTableName="documents" baseColumnNames="uploaded_by_id" constraintName="fk_documents_uploader" referencedTableName="users" referencedColumnNames="id"/>
+        <addForeignKeyConstraint baseTableName="ai_analysis_results" baseColumnNames="document_id" constraintName="fk_ai_results_document" referencedTableName="documents" referencedColumnNames="id" onDelete="CASCADE"/>
+        <addForeignKeyConstraint baseTableName="workflow_histories" baseColumnNames="assessment_id" constraintName="fk_workflow_assessment" referencedTableName="assessments" referencedColumnNames="id" onDelete="CASCADE"/>
+        <addForeignKeyConstraint baseTableName="workflow_histories" baseColumnNames="assigned_to_id" constraintName="fk_workflow_actor" referencedTableName="users" referencedColumnNames="id"/>
+        <addForeignKeyConstraint baseTableName="certificates" baseColumnNames="company_id" constraintName="fk_certificates_company" referencedTableName="companies" referencedColumnNames="id" onDelete="CASCADE"/>
+        <addForeignKeyConstraint baseTableName="certificates" baseColumnNames="factory_id" constraintName="fk_certificates_factory" referencedTableName="factories" referencedColumnNames="id" onDelete="CASCADE"/>
+        <addForeignKeyConstraint baseTableName="certificates" baseColumnNames="assessment_id" constraintName="fk_certificates_assessment" referencedTableName="assessments" referencedColumnNames="id" onDelete="CASCADE"/>
+    </changeSet>
+
+    <!-- ChangeSet 6: Initial Metadata & System Administrator Seeds -->
+    <changeSet id="6" author="greenco-dev">
+        <insert tableName="permissions">
+            <column name="code" value="read:factory"/>
+            <column name="description" value="Read factory details and baselines"/>
+        </insert>
+        <insert tableName="permissions">
+            <column name="code" value="write:assessment"/>
+            <column name="description" value="Submit self-assessment questionnaire"/>
+        </insert>
+        <insert tableName="permissions">
+            <column name="code" value="verify:documents"/>
+            <column name="description" value="Verify uploaded utility invoices"/>
+        </insert>
+
+        <insert tableName="roles">
+            <column name="name" value="ROLE_ADMIN"/>
+            <column name="description" value="System Administrator"/>
+        </insert>
+        <insert tableName="roles">
+            <column name="name" value="ROLE_MANUFACTURING_COMPANY"/>
+            <column name="description" value="Company Representative"/>
+        </insert>
+
+        <!-- Associated default role permissions mapping -->
+        <!-- Note: Using raw SQL script fallback block since database IDs map dynamically -->
+        <sql>
+            INSERT INTO role_permissions (role_id, permission_id) 
+            SELECT r.id, p.id FROM roles r, permissions p 
+            WHERE r.name = 'ROLE_ADMIN' AND p.code IN ('read:factory', 'write:assessment', 'verify:documents');
+        </sql>
+
+        <insert tableName="assessment_parameters">
+            <column name="pillar_name" value="Energy Efficiency"/>
+            <column name="parameter_code" value="EN-EFF-01"/>
+            <column name="description" value="Specific Energy Consumption reduction targets and performance"/>
+            <column name="max_score" value="150.00"/>
+        </insert>
+        <insert tableName="assessment_parameters">
+            <column name="pillar_name" value="Water Conservation"/>
+            <column name="parameter_code" value="WT-CON-02"/>
+            <column name="description" value="Rainwater harvesting capacity and recycling systems"/>
+            <column name="max_score" value="100.00"/>
+        </insert>
+        <insert tableName="assessment_parameters">
+            <column name="pillar_name" value="Waste Management"/>
+            <column name="parameter_code" value="WS-GEN-03"/>
+            <column name="description" value="Solid waste categorization and zero landfill disposal progress"/>
+            <column name="max_score" value="120.00"/>
+        </insert>
+
+        <!-- Admin Credential Seed (Pass hash matches AdminPass123!) -->
+        <insert tableName="users">
+            <column name="email" value="admin@greenco.org"/>
+            <column name="password_hash" value="$2a$10$o1v9n9j0R2N5a3GZ3yJ/beHn9KjHn0zCkW1o5KkX9o1p3f1.3f.1y"/>
+            <column name="first_name" value="GreenCo"/>
+            <column name="last_name" value="Admin"/>
+            <column name="status" value="ACTIVE"/>
+        </insert>
+
+        <sql>
+            INSERT INTO user_roles (user_id, role_id) 
+            SELECT u.id, r.id FROM users u, roles r 
+            WHERE u.email = 'admin@greenco.org' AND r.name = 'ROLE_ADMIN';
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>

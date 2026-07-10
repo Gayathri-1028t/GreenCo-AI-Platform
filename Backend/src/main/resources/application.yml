@@ -1,0 +1,106 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /api/v1
+
+spring:
+  application:
+    name: greenco-sustainability-platform
+  profiles:
+    active: dev
+
+  # Database Source Configuration (MySQL)
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:greenco_db}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: ${DB_USER:root}
+    password: ${DB_PASSWORD:password}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      idle-timeout: 300000
+      max-lifetime: 1800000
+      connection-timeout: 20000
+      pool-name: GreenCoHikariCP
+
+  # JPA & Hibernate Configurations
+  jpa:
+    database-platform: org.hibernate.dialect.MySQLDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
+        jdbc:
+          batch_size: 25
+        order_inserts: true
+        order_updates: true
+
+  # Multipart File Upload limits (max 25MB for evidence files)
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 25MB
+      max-request-size: 25MB
+
+  # Redis caching configuration
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      time-to-live: 3600s
+
+  # Spring Boot virtual threads configuration
+  threads:
+    virtual:
+      enabled: true
+
+# Swagger API Docs Configurations (SpringDoc OpenAPI)
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+
+# Custom App configs (Security, CORS, AWS S3 / MinIO, AI)
+app:
+  security:
+    jwt:
+      secret-key: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970} # 256-bit secret in hex
+      expiration-ms: 900000 # 15 minutes (900,000 ms)
+      refresh-expiration-ms: 604800000 # 7 days (604,800,000 ms)
+  
+  cors:
+    allowed-origins: "*"
+    allowed-methods: "GET,POST,PUT,PATCH,DELETE,OPTIONS"
+    allowed-headers: "*"
+
+  # S3 Bucket integration placeholders (MinIO compatible)
+  s3:
+    bucket-name: ${AWS_S3_BUCKET:greenco-documents-bucket}
+    region: ${AWS_REGION:us-east-1}
+    access-key: ${AWS_ACCESS_KEY_ID:minioadmin}
+    secret-key: ${AWS_SECRET_ACCESS_KEY:minioadmin}
+    endpoint: ${AWS_S3_ENDPOINT:http://localhost:9000}
+
+  # AI OCR Service parameters placeholders
+  ai:
+    endpoint: ${AI_SERVICE_ENDPOINT:http://localhost:5000/api/v1/ai}
+    api-key: ${AI_SERVICE_API_KEY:mock-key}
+
+# Logging Configurations
+logging:
+  level:
+    root: INFO
+    com.greenco: DEBUG
+    org.springframework.web: INFO
+    org.hibernate.SQL: ERROR
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/greenco-platform.log
