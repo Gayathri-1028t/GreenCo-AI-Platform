@@ -107,9 +107,41 @@ function LoginPage() {
     return () => clearInterval(interval)
   }, [])
 
+  const DEMO_MODE = true
+
   // Auth POST submit
   const onSubmit = async (data) => {
     setIsSubmitting(true)
+
+    if (DEMO_MODE) {
+      if (data.email === 'admin@greenco.org' && data.password === 'AdminPass123!') {
+        const header = btoa(JSON.stringify({ alg: "HS256", typ: "JWT" }))
+        const payload = btoa(JSON.stringify({
+          sub: "admin@greenco.org",
+          roles: ["ROLE_SUPER_ADMIN"],
+          exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24 * 365) // 1 year
+        }))
+        const mockToken = `${header}.${payload}.mock_signature`
+        const mockUser = {
+          id: 1,
+          email: "admin@greenco.org",
+          firstName: "System",
+          lastName: "Admin",
+          roles: ["ROLE_SUPER_ADMIN", "ROLE_ADMIN"]
+        }
+
+        setAuth(mockUser, mockToken)
+        toast.success('Successfully logged in!')
+        navigate('/dashboard', { replace: true })
+        setIsSubmitting(false)
+        return
+      } else {
+        toast.error('Invalid username or password')
+        setIsSubmitting(false)
+        return
+      }
+    }
+
     try {
       const response = await api.post('/auth/login', {
         email: data.email,
@@ -142,6 +174,29 @@ function LoginPage() {
     const currentProvider = ssoProvider || 'sso'
     setSsoProvider(null)
     setIsSubmitting(true)
+
+    if (DEMO_MODE && email === 'admin@greenco.org') {
+      const header = btoa(JSON.stringify({ alg: "HS256", typ: "JWT" }))
+      const payload = btoa(JSON.stringify({
+        sub: "admin@greenco.org",
+        roles: ["ROLE_SUPER_ADMIN"],
+        exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24 * 365)
+      }))
+      const mockToken = `${header}.${payload}.mock_signature`
+      const mockUser = {
+        id: 1,
+        email: "admin@greenco.org",
+        firstName: "System",
+        lastName: "Admin",
+        roles: ["ROLE_SUPER_ADMIN", "ROLE_ADMIN"]
+      }
+
+      setAuth(mockUser, mockToken)
+      toast.success('SSO Login successful!')
+      navigate('/dashboard', { replace: true })
+      setIsSubmitting(false)
+      return
+    }
 
     try {
       const response = await api.post(`/auth/sso?email=${email}&provider=${currentProvider}`)
