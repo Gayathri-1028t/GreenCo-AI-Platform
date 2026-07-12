@@ -22,6 +22,7 @@ import AiAnalysisPage from "../pages/AiAnalysisPage";
 import WorkflowPage from "../pages/WorkflowPage";
 import ReportsPage from "../pages/ReportsPage";
 import AssessmentsPage from "../pages/AssessmentsPage";
+import EvidenceDetailsPage from "../pages/EvidenceDetailsPage";
 import VerifyCertificatePage from "../pages/VerifyCertificatePage";
 import CopilotPage from "../pages/CopilotPage";
 import AuditLogsPage from "../pages/AuditLogsPage";
@@ -70,6 +71,10 @@ function AppRoutes() {
           />
           <Route path="/assessments/:id/ai" element={<AiAnalysisPage />} />
           <Route path="/assessments/:id/workflow" element={<WorkflowPage />} />
+          <Route
+            path="/assessments/:assessmentId/evidence/:evidenceId"
+            element={<EvidenceDetailsPage />}
+          />
           <Route path="/reports" element={<ReportsPage />} />
           <Route path="/certificates" element={<CertificatesPage />} />
           <Route path="/settings" element={<SettingsPage />} />
