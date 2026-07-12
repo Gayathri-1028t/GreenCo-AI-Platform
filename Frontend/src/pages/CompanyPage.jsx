@@ -653,11 +653,12 @@ function CompanyPage() {
   // 1. Filter
   const filteredList = rawList.filter(comp => {
     const matchesIndustry = selectedIndustry ? comp.industry === selectedIndustry : true
+    const matchesStatus = status ? comp.status === status : true
     const matchesSearch = search ? (
-      comp.legalName.toLowerCase().includes(search.toLowerCase()) || 
-      comp.registrationNumber.toLowerCase().includes(search.toLowerCase())
+      (comp.legalName || '').toLowerCase().includes(search.toLowerCase()) || 
+      (comp.registrationNumber || '').toLowerCase().includes(search.toLowerCase())
     ) : true
-    return matchesIndustry && matchesSearch
+    return matchesIndustry && matchesStatus && matchesSearch
   })
 
   // 2. Sort
@@ -1171,12 +1172,16 @@ function CompanyPage() {
         </select>
       </div>
 
+      <div className="text-xs font-bold text-slate-500 px-1 mt-1">
+        Showing {sortedList.length} of {rawList.length} companies
+      </div>
+
       {/* Registry Table List */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         {isListLoading ? (
           <div className="p-8 text-center text-slate-500">Loading companies registry...</div>
-) : sortedList.length === 0 ? (
-          <div className="p-8 text-center text-slate-500">No organizations found matching search criteria.</div>
+        ) : sortedList.length === 0 ? (
+          <div className="p-8 text-center text-slate-500">No companies match the selected filters.</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-slate-150">

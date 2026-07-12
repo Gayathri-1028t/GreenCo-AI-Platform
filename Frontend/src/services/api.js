@@ -743,10 +743,13 @@ function handleMockRequest(config) {
     const status = config.params?.status
     let list = db.companies
     if (search) {
-      list = list.filter(c => c.name.toLowerCase().includes(search))
+      list = list.filter(c => 
+        (c.name || '').toLowerCase().includes(search) || 
+        (c.registrationNumber || '').toLowerCase().includes(search)
+      )
     }
     if (status) {
-      list = list.filter(c => c.ratingLevel === status)
+      list = list.filter(c => c.status === status)
     }
     return {
       success: true,
