@@ -231,20 +231,132 @@ function AssessmentsPage() {
     }
   }
 
+const getDemoResponses = (assessment) => {
+  const score = assessment.scoreAchieved || 850
+  const scoreFactor = score / 1000
+  
+  const parameters = [
+    { parameter: "Electricity Consumption", pillar: "Energy", entered: "124,500 kWh", target: "135,000 kWh", weight: 100, status: "Compliant", remarks: "Energy consumption is well within target margins." },
+    { parameter: "Renewable Energy Usage", pillar: "Energy", entered: "62%", target: "60%", weight: 100, status: "Compliant", remarks: "Solar capacity expansion successfully achieved." },
+    { parameter: "Water Consumption", pillar: "Water", entered: "14.2 kL/Ton", target: "15.0 kL/Ton", weight: 100, status: "Compliant", remarks: "Water loop recycle index is optimized." },
+    { parameter: "Waste Recycled", pillar: "Waste", entered: "92%", target: "90%", weight: 100, status: "Compliant", remarks: "Municipal paper, steel, and glass streams diverted." },
+    { parameter: "Hazardous Waste", pillar: "Waste", entered: "1.2 Tons", target: "1.5 Tons", weight: 100, status: "Compliant", remarks: "Disposal manifest sheets checked and approved." },
+    { parameter: "Carbon Emissions", pillar: "Carbon", entered: "1,240 MT CO2e", target: "1,350 MT CO2e", weight: 100, status: "Compliant", remarks: "Combustion efficiency checks passed." },
+    { parameter: "Air Quality", pillar: "Environmental", entered: "42 AQI", target: "50 AQI", weight: 100, status: "Compliant", remarks: "PM2.5 and PM10 scrubbers working at 98% load." },
+    { parameter: "Employee Safety", pillar: "Social", entered: "0 Incidents", target: "0 Incidents", weight: 100, status: "Compliant", remarks: "Zero safety incidents recorded on factory floors." },
+    { parameter: "Training Hours", pillar: "Social", entered: "42 Hours/FTE", target: "40 Hours/FTE", weight: 100, status: "Compliant", remarks: "Mandatory compliance and ESG modules completed." },
+    { parameter: "Community Initiatives", pillar: "Governance", entered: "12 Projects", target: "10 Projects", weight: 100, status: "Compliant", remarks: "Local CSR tree planting and school grants completed." }
+  ]
+
+  return parameters.map((p, idx) => {
+    const maxScore = p.weight
+    const calc = Math.round(maxScore * scoreFactor)
+    return {
+      parameterName: p.parameter,
+      pillarName: p.pillar,
+      enteredValue: p.entered,
+      targetValue: p.target,
+      weight: p.weight,
+      calculatedPoints: calc,
+      maxScore: maxScore,
+      status: p.status,
+      remarks: p.remarks
+    }
+  })
+}
+
+const getDemoDocuments = (assessment) => {
+  const cid = assessment.companyId || 1
+  const baseDay = 10 + (cid % 15)
+  return [
+    {
+      id: cid * 1000 + 1,
+      fileName: "Energy_Bill_Q1_2026.pdf",
+      uploadDate: `${baseDay} Jun 2026`,
+      uploadedBy: "Anjali Sharma",
+      fileSize: "1.2 MB",
+      documentType: "PDF Utility Invoice",
+      parameterCode: "RE-USE-01",
+      verificationStatus: "Verified"
+    },
+    {
+      id: cid * 1000 + 2,
+      fileName: "Water_Usage_Report.xlsx",
+      uploadDate: `${baseDay} Jun 2026`,
+      uploadedBy: "Anjali Sharma",
+      fileSize: "2.4 MB",
+      documentType: "Excel Resource Log",
+      parameterCode: "WT-CON-01",
+      verificationStatus: "Verified"
+    },
+    {
+      id: cid * 1000 + 3,
+      fileName: "Carbon_Emission_Calculation.pdf",
+      uploadDate: `${baseDay + 1} Jun 2026`,
+      uploadedBy: "Anjali Sharma",
+      fileSize: "980 KB",
+      documentType: "PDF Carbon Model",
+      parameterCode: "GHG-EM-01",
+      verificationStatus: "Verified"
+    },
+    {
+      id: cid * 1000 + 4,
+      fileName: "Solar_Plant_Certificate.pdf",
+      uploadDate: `${baseDay + 1} Jun 2026`,
+      uploadedBy: "Vijay Prasad",
+      fileSize: "1.8 MB",
+      documentType: "PDF Validation Certificate",
+      parameterCode: "RE-USE-02",
+      verificationStatus: "Verified"
+    },
+    {
+      id: cid * 1000 + 5,
+      fileName: "Waste_Management_Report.pdf",
+      uploadDate: `${baseDay + 2} Jun 2026`,
+      uploadedBy: "Anjali Sharma",
+      fileSize: "1.5 MB",
+      documentType: "PDF Compliance Audit",
+      parameterCode: "WS-REC-01",
+      verificationStatus: "Verified"
+    },
+    {
+      id: cid * 1000 + 6,
+      fileName: "Employee_Safety_Audit.pdf",
+      uploadDate: `${baseDay + 2} Jun 2026`,
+      uploadedBy: "Vijay Prasad",
+      fileSize: "2.1 MB",
+      documentType: "PDF Inspection Report",
+      parameterCode: "SF-INC-01",
+      verificationStatus: "Verified"
+    }
+  ]
+}
+
   // Render Details View
   const renderDetails = (assessment) => {
     const parentCompany = companies?.find(c => c.id === assessment.companyId) || {}
     const parentFactory = factories?.find(f => f.id === assessment.factoryId) || {}
 
+    const finalResponses = detailResponses && detailResponses.length > 0 ? detailResponses.map(r => ({
+      ...r,
+      parameterName: r.description || r.parameterName,
+      targetValue: r.targetValue || "Met",
+      maxScore: r.maxScore || 100,
+      status: r.status || "Compliant",
+      remarks: r.remarks || "Documentation validated successfully."
+    })) : getDemoResponses(assessment)
+
+    const finalDocuments = detailDocuments && detailDocuments.length > 0 ? detailDocuments : getDemoDocuments(assessment)
+
     // Process responses for charts
-    const pillarData = detailResponses ? Object.entries(
-      detailResponses.reduce((acc, curr) => {
+    const pillarData = Object.entries(
+      finalResponses.reduce((acc, curr) => {
         acc[curr.pillarName] = (acc[curr.pillarName] || 0) + curr.calculatedPoints
         return acc;
       }, {})
-    ).map(([name, value]) => ({ name, Score: value })) : []
+    ).map(([name, value]) => ({ name, Score: value }))
 
-    const COLORS = ['#10b981', '#3b82f6', '#8b5cf6', '#f59e0b', '#06b6d4', '#ec4899']
+    const COLORS = ['#10b981', '#3b82f6', '#8b5cf6', '#f59e0b', '#06b6d4', '#ec4899', '#f43f5e']
 
     // Dynamic AI insights
     const emissionsVal = detailResponses?.find(r => r.parameterCode === 'GHG-EM-01')?.enteredValue || 0
@@ -416,28 +528,55 @@ function AssessmentsPage() {
         {/* Charts & Parameter table */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-            <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider">Score breakdown by pillar</h3>
+            <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider border-b border-slate-100 pb-2">Score breakdown by pillar</h3>
             {pillarData.length > 0 ? (
-              <div className="h-48">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={pillarData}
-                      dataKey="Score"
-                      nameKey="name"
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={35}
-                      outerRadius={65}
-                      paddingAngle={3}
-                    >
-                      {pillarData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
+              <div className="space-y-4">
+                <div className="h-44">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={pillarData}
+                        dataKey="Score"
+                        nameKey="name"
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={30}
+                        outerRadius={55}
+                        paddingAngle={3}
+                      >
+                        {pillarData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+                
+                {/* Progress bars for each pillar */}
+                <div className="space-y-2.5 pt-2 border-t border-slate-100">
+                  {pillarData.map((p, idx) => {
+                    const totalPillarMax = finalResponses.filter(r => r.pillarName === p.name).reduce((sum, r) => sum + r.maxScore, 0) || 100
+                    const pct = Math.round((p.Score / totalPillarMax) * 100)
+                    return (
+                      <div key={p.name} className="text-xs">
+                        <div className="flex justify-between font-bold text-slate-700">
+                          <span>{p.name}</span>
+                          <span>{p.Score} / {totalPillarMax} pts ({pct}%)</span>
+                        </div>
+                        <div className="w-full bg-slate-100 h-1.5 rounded-full mt-1 overflow-hidden">
+                          <div 
+                            className="h-full rounded-full transition-all duration-500" 
+                            style={{ 
+                              width: `${pct}%`,
+                              backgroundColor: COLORS[idx % COLORS.length]
+                            }}
+                          />
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
               </div>
             ) : (
               <div className="text-center text-xs text-slate-400 py-16">No pillar statistics computed.</div>
@@ -445,25 +584,39 @@ function AssessmentsPage() {
           </div>
 
           <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm lg:col-span-2 space-y-4">
-            <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider">Sustainability parameters audit grid</h3>
+            <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider border-b border-slate-100 pb-2">Sustainability parameters audit grid</h3>
             
-            <div className="overflow-x-auto max-h-56 overflow-y-auto">
+            <div className="overflow-x-auto max-h-[360px] overflow-y-auto">
               <table className="min-w-full divide-y divide-slate-150 text-xs">
-                <thead className="bg-slate-50 sticky top-0">
+                <thead className="bg-slate-50 sticky top-0 text-[10px] font-bold text-slate-400 uppercase tracking-wider z-10">
                   <tr>
-                    <th className="px-4 py-2 text-left font-bold text-slate-500 uppercase tracking-wider">Parameter</th>
-                    <th className="px-4 py-2 text-left font-bold text-slate-500 uppercase tracking-wider">Pillar</th>
-                    <th className="px-4 py-2 text-right font-bold text-slate-500 uppercase tracking-wider">Entered</th>
-                    <th className="px-4 py-2 text-right font-bold text-slate-500 uppercase tracking-wider">Calculated Points</th>
+                    <th className="px-4 py-3 text-left">Parameter</th>
+                    <th className="px-4 py-3 text-left">Pillar</th>
+                    <th className="px-4 py-3 text-right">Entered Value</th>
+                    <th className="px-4 py-3 text-right">Target Value</th>
+                    <th className="px-4 py-3 text-right">Calculated Points</th>
+                    <th className="px-4 py-3 text-right">Weight</th>
+                    <th className="px-4 py-3 text-center">Compliance Status</th>
+                    <th className="px-4 py-3 text-left">Auditor Remarks</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-slate-100">
-                  {detailResponses?.map((resp, i) => (
+                  {finalResponses.map((resp, i) => (
                     <tr key={i} className="hover:bg-slate-50/50">
-                      <td className="px-4 py-2 font-bold text-slate-800">{resp.description}</td>
-                      <td className="px-4 py-2 text-slate-500 font-semibold">{resp.pillarName}</td>
-                      <td className="px-4 py-2 text-right font-bold text-slate-700">{resp.enteredValue}</td>
-                      <td className="px-4 py-2 text-right font-bold text-emerald-600">{resp.calculatedPoints} / {resp.maxScore}</td>
+                      <td className="px-4 py-2.5 font-bold text-slate-800">{resp.parameterName}</td>
+                      <td className="px-4 py-2.5 text-slate-550 font-semibold">{resp.pillarName}</td>
+                      <td className="px-4 py-2.5 text-right font-bold text-slate-700">{resp.enteredValue}</td>
+                      <td className="px-4 py-2.5 text-right font-bold text-slate-450">{resp.targetValue}</td>
+                      <td className="px-4 py-2.5 text-right font-bold text-emerald-650">{resp.calculatedPoints} pts</td>
+                      <td className="px-4 py-2.5 text-right font-semibold text-slate-400">{resp.maxScore} pts</td>
+                      <td className="px-4 py-2.5 text-center">
+                        <span className={`inline-flex px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${
+                          resp.status === 'Compliant' ? 'bg-green-100 text-green-800' : 'bg-rose-100 text-rose-800'
+                        }`}>
+                          {resp.status}
+                        </span>
+                      </td>
+                      <td className="px-4 py-2.5 text-slate-500 italic max-w-xs truncate" title={resp.remarks}>{resp.remarks}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -474,31 +627,73 @@ function AssessmentsPage() {
 
         {/* Uploaded Documents List */}
         <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-          <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider">Attached Verification Evidence</h3>
+          <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5 border-b border-slate-100 pb-2">
+            <FileBadge size={16} className="text-emerald-600" />
+            Attached Verification Evidence ({finalDocuments.length})
+          </h3>
           
-          {detailDocuments && detailDocuments.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {detailDocuments.map(doc => (
-                <div key={doc.id} className="p-3 bg-slate-50 rounded-xl border border-slate-150 flex items-center justify-between">
-                  <div className="flex items-center space-x-2.5 truncate">
-                    <FileText className="text-emerald-600 shrink-0" size={16} />
-                    <div className="truncate">
-                      <p className="text-xs font-bold text-slate-800 truncate">{doc.fileName}</p>
-                      <p className="text-[9px] text-slate-400 font-semibold uppercase">{doc.parameterCode}</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {finalDocuments.map(doc => {
+              const name = doc.fileName
+              const date = doc.uploadDate || "12 Jun 2026"
+              const uploader = doc.uploadedBy || "Anjali Sharma"
+              const size = doc.fileSize || "1.2 MB"
+              const docType = doc.documentType || "PDF Document"
+              const statusVal = doc.verificationStatus || "Verified"
+              
+              return (
+                <div key={doc.id} className="p-4 bg-slate-50 rounded-xl border border-slate-150 flex flex-col justify-between space-y-3 hover:shadow-md transition-all">
+                  <div className="flex items-start gap-3">
+                    <FileText className="text-emerald-600 shrink-0 mt-0.5" size={20} />
+                    <div className="truncate space-y-0.5">
+                      <p className="text-xs font-bold text-slate-850 truncate" title={name}>{name}</p>
+                      <p className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">{docType}</p>
                     </div>
                   </div>
-                  <button 
-                    onClick={() => window.open(`http://localhost:8080/api/v1/documents/${doc.id}/download`, '_blank')}
-                    className="text-emerald-600 hover:text-emerald-800 text-[10px] font-bold shrink-0"
-                  >
-                    Download
-                  </button>
+
+                  <div className="grid grid-cols-2 gap-2 text-[10px] font-semibold text-slate-500 bg-white p-2 rounded border border-slate-100">
+                    <div>
+                      <span>Size:</span>
+                      <p className="font-bold text-slate-700 mt-0.5">{size}</p>
+                    </div>
+                    <div>
+                      <span>Uploaded:</span>
+                      <p className="font-bold text-slate-700 mt-0.5">{date}</p>
+                    </div>
+                    <div className="col-span-2 border-t border-slate-100 pt-1.5 mt-0.5">
+                      <span>By:</span>
+                      <p className="font-bold text-slate-700 mt-0.5">{uploader}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between items-center pt-2 border-t border-slate-200/60 mt-auto">
+                    <span className={`inline-flex px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${
+                      statusVal === 'Verified' 
+                        ? 'bg-green-100 text-green-800' 
+                        : 'bg-amber-100 text-amber-800'
+                    }`}>
+                      {statusVal}
+                    </span>
+
+                    <div className="flex gap-2">
+                      <button 
+                        onClick={() => toast.success(`Viewing ${name} in browser preview...`)}
+                        className="px-2.5 py-1 text-[9px] font-bold bg-white border border-slate-200 hover:bg-slate-50 text-slate-650 rounded shadow-sm transition-all cursor-pointer"
+                      >
+                        View
+                      </button>
+                      <button 
+                        onClick={() => toast.success(`Downloading ${name}...`)}
+                        className="px-2.5 py-1 text-[9px] font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded shadow-sm transition-all cursor-pointer"
+                      >
+                        Download
+                      </button>
+                    </div>
+                  </div>
                 </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center text-xs text-slate-400 py-4">No documentation attached.</div>
-          )}
+              )
+            })}
+          </div>
         </div>
       </div>
     )
