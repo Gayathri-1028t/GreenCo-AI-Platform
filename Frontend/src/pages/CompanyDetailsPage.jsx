@@ -473,6 +473,103 @@ const FRONTEND_DEMO_COMPANIES = [
     }
 ]
 
+const getDemoCertificates = (compId) => [
+  {
+    id: compId * 10 + 1,
+    certificateName: "ISO 14001 Environmental Certification",
+    certificationLevel: "Gold",
+    certificateNumber: `GC-ISO-2026-00${compId}`,
+    issueDate: "2026-01-15",
+    expiryDate: "2029-01-15",
+    status: "Active"
+  },
+  {
+    id: compId * 10 + 2,
+    certificateName: "GreenCo Platinum Sustainability Certificate",
+    certificationLevel: "Platinum",
+    certificateNumber: `GC-PLT-2026-01${compId}`,
+    issueDate: "2026-03-20",
+    expiryDate: "2029-03-20",
+    status: "Active"
+  },
+  {
+    id: compId * 10 + 3,
+    certificateName: "Zero Waste to Landfill Standard",
+    certificationLevel: "Silver",
+    certificateNumber: `GC-ZWL-2026-00${compId}`,
+    issueDate: "2025-11-10",
+    expiryDate: "2028-11-10",
+    status: "Active"
+  },
+  {
+    id: compId * 10 + 4,
+    certificateName: "ISO 5001 Energy Management Standard",
+    certificationLevel: "Gold",
+    certificateNumber: `GC-EN-2026-02${compId}`,
+    issueDate: "2023-08-05",
+    expiryDate: "2026-08-05",
+    status: "Expired"
+  }
+]
+
+const getDemoAssessments = (compId) => [
+  {
+    id: compId * 100 + 1,
+    assessmentName: "Annual Sustainability Assessment 2026",
+    assessmentVersion: "V3.0",
+    assessmentDate: "2026-06-15",
+    scoreAchieved: 910,
+    carbonRating: "A++",
+    status: "Approved",
+    auditorName: "GreenCo Audit Team",
+    overallGrade: "Platinum"
+  },
+  {
+    id: compId * 100 + 2,
+    assessmentName: "Quarterly ESG Assessment",
+    assessmentVersion: "V2.1",
+    assessmentDate: "2026-03-12",
+    scoreAchieved: 860,
+    carbonRating: "A+",
+    status: "Completed",
+    auditorName: "GreenCo Audit Team",
+    overallGrade: "Gold"
+  },
+  {
+    id: compId * 100 + 3,
+    assessmentName: "Water Efficiency Audit",
+    assessmentVersion: "V1.8",
+    assessmentDate: "2025-12-05",
+    scoreAchieved: 880,
+    carbonRating: "A+",
+    status: "Completed",
+    auditorName: "GreenCo Audit Team",
+    overallGrade: "Gold"
+  },
+  {
+    id: compId * 100 + 4,
+    assessmentName: "Carbon Emission Audit",
+    assessmentVersion: "V2.0",
+    assessmentDate: "2025-09-18",
+    scoreAchieved: 820,
+    carbonRating: "A",
+    status: "Approved",
+    auditorName: "GreenCo Audit Team",
+    overallGrade: "Silver"
+  },
+  {
+    id: compId * 100 + 5,
+    assessmentName: "Renewable Energy Compliance Review",
+    assessmentVersion: "V1.5",
+    assessmentDate: "2025-06-10",
+    scoreAchieved: 940,
+    carbonRating: "A++",
+    status: "Approved",
+    auditorName: "GreenCo Audit Team",
+    overallGrade: "Platinum"
+  }
+]
+
 function CompanyDetailsPage() {
   const { companyId } = useParams()
   const navigate = useNavigate()
@@ -505,7 +602,7 @@ function CompanyDetailsPage() {
   })
 
   // 3. Fetch Certificates of this company
-  const { data: certificates, isLoading: isCertsLoading } = useQuery({
+  const { data: serverCertificates, isLoading: isCertsLoading } = useQuery({
     queryKey: ['companyCertificates', companyId],
     queryFn: async () => {
       const response = await api.get('/certificates', {
@@ -517,7 +614,7 @@ function CompanyDetailsPage() {
   })
 
   // 4. Fetch Assessments of this company
-  const { data: assessments, isLoading: isAssessmentsLoading } = useQuery({
+  const { data: serverAssessments, isLoading: isAssessmentsLoading } = useQuery({
     queryKey: ['companyAssessments', companyId],
     queryFn: async () => {
       const response = await api.get('/assessments', {
@@ -527,6 +624,10 @@ function CompanyDetailsPage() {
     },
     enabled: !!companyId
   })
+
+  const cid = parseInt(companyId) || 1
+  const certificates = serverCertificates && serverCertificates.length > 0 ? serverCertificates : getDemoCertificates(cid)
+  const assessments = serverAssessments && serverAssessments.length > 0 ? serverAssessments : getDemoAssessments(cid)
 
   const isLoading = isCompanyLoading || isFactoriesLoading || isCertsLoading || isAssessmentsLoading
 
@@ -782,82 +883,151 @@ function CompanyDetailsPage() {
 
         {/* Certificates Compliance Timeline */}
         <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-          <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+          <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5 border-b border-slate-100 pb-2">
             <FileBadge size={16} className="text-rose-600" />
-            Compliance Certificates ({Array.isArray(certificates) ? certificates.length : 0})
+            Compliance Certificates ({certificates.length})
           </h3>
-          {!Array.isArray(certificates) || certificates.length === 0 ? (
-            <p className="text-xs text-slate-400 italic">No certificates issued yet.</p>
-          ) : (
-            <div className="space-y-4 max-h-60 overflow-y-auto pr-1">
-              {certificates.map(cert => (
-                <div key={cert.id} className="flex items-start gap-3 pl-3 border-l border-slate-200 relative py-1">
-                  <span className="absolute -left-[3.5px] top-2.5 w-1.5 h-1.5 rounded-full bg-indigo-500" />
-                  <div className="flex-1 space-y-0.5">
-                    <p className="text-xs font-bold text-slate-800">{cert.certificateNumber}</p>
-                    <span className="text-[10px] text-slate-400 font-semibold block">Issue: {new Date(cert.issueDate).toLocaleDateString()}</span>
+          <div className="space-y-4 max-h-[380px] overflow-y-auto pr-1">
+            {certificates.map(cert => {
+              const name = cert.certificateName || "GreenCo Sustainability Certificate"
+              const num = cert.certificateNumber
+              const level = cert.certificationLevel || cert.ratingLevel || "Gold"
+              const issue = cert.issueDate ? new Date(cert.issueDate).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : "March 2026"
+              const expiry = cert.expiryDate ? new Date(cert.expiryDate).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : "March 2029"
+              const statusVal = cert.status || "Active"
+              
+              return (
+                <div key={cert.id} className="p-4 bg-slate-50 rounded-xl border border-slate-150 space-y-3">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h4 className="text-xs font-bold text-slate-800">{name}</h4>
+                      <p className="text-[10px] text-slate-450 mt-0.5">Certificate No: <span className="font-mono">{num}</span></p>
+                    </div>
+                    <span className={`inline-flex px-2 py-0.5 rounded font-black text-[9px] uppercase border ${
+                      level.toUpperCase() === 'PLATINUM' 
+                        ? 'bg-purple-100 text-purple-800 border-purple-200' 
+                        : level.toUpperCase() === 'GOLD' 
+                        ? 'bg-amber-100 text-amber-800 border-amber-200' 
+                        : level.toUpperCase() === 'SILVER'
+                        ? 'bg-slate-100 text-slate-800 border-slate-200'
+                        : 'bg-orange-100 text-orange-800 border-orange-200'
+                    }`}>
+                      {level}
+                    </span>
                   </div>
-                  <span className="text-[9px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-bold uppercase">{cert.status}</span>
+
+                  <div className="grid grid-cols-2 gap-2 text-[10px] font-semibold text-slate-500">
+                    <div>
+                      <span>Issued:</span>
+                      <p className="font-bold text-slate-700">{issue}</p>
+                    </div>
+                    <div>
+                      <span>Expires:</span>
+                      <p className="font-bold text-slate-700">{expiry}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between items-center pt-2 border-t border-slate-200/60">
+                    <span className={`inline-flex px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${
+                      statusVal === 'Active' || statusVal === 'ACTIVE'
+                        ? 'bg-green-100 text-green-800'
+                        : statusVal === 'Expiring Soon' || statusVal === 'EXPIRING_SOON'
+                        ? 'bg-amber-100 text-amber-800'
+                        : 'bg-rose-100 text-rose-800'
+                    }`}>
+                      {statusVal.replace(/_/g, ' ')}
+                    </span>
+
+                    <div className="flex gap-2">
+                      <button 
+                        onClick={() => navigate('/certificates')}
+                        className="px-2.5 py-1 text-[9px] font-bold bg-white border border-slate-200 hover:bg-slate-50 text-slate-650 rounded shadow-sm transition-all cursor-pointer"
+                      >
+                        View Certificate
+                      </button>
+                      <button 
+                        onClick={() => navigate('/certificates')}
+                        className="px-2.5 py-1 text-[9px] font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded shadow-sm transition-all cursor-pointer"
+                      >
+                        Download Certificate
+                      </button>
+                    </div>
+                  </div>
                 </div>
-              ))}
-            </div>
-          )}
+              )
+            })}
+          </div>
         </div>
       </div>
 
       {/* Assessment History Ledger */}
       <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-        <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+        <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2 border-b border-slate-100 pb-2">
           <FileText size={16} className="text-emerald-600" />
-          Sustainability Assessment History
+          Sustainability Assessment History ({assessments.length})
         </h3>
         
-        {!Array.isArray(assessments) || assessments.length === 0 ? (
-          <p className="text-xs text-slate-400 italic">No assessments initialized yet.</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                  <th className="py-2.5">Year</th>
-                  <th>Factory</th>
-                  <th>ESG Score</th>
-                  <th>Grade</th>
-                  <th>Status</th>
-                  <th>Date</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 text-xs text-slate-700">
-                {assessments.map(ass => {
-                  const yr = ass.createdAt ? new Date(ass.createdAt).getFullYear().toString() : '2026'
-                  const pct = ass.scoreAchieved ? Math.round((ass.scoreAchieved / 1000) * 100) : 0
-                  return (
-                    <tr key={ass.id}>
-                      <td className="py-3 font-bold text-slate-850">{yr}</td>
-                      <td>{ass.factoryName || 'Plant Asset'}</td>
-                      <td className="font-semibold">{pct}%</td>
-                      <td className="font-bold text-slate-800">{ass.ratingLevel || 'N/A'}</td>
-                      <td>
-                        <span className={`inline-flex px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${
-                          ass.status === 'APPROVED' 
-                            ? 'bg-green-100 text-green-800' 
-                            : ass.status === 'SUBMITTED' 
-                            ? 'bg-blue-100 text-blue-800'
-                            : ass.status === 'REJECTED'
-                            ? 'bg-red-100 text-red-800'
-                            : 'bg-slate-100 text-slate-600'
-                        }`}>
-                          {ass.status.replace(/_/g, ' ')}
-                        </span>
-                      </td>
-                      <td className="text-slate-400 font-semibold">{new Date(ass.updatedAt || ass.createdAt).toLocaleDateString()}</td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {assessments.map(ass => {
+            const name = ass.assessmentName || ass.name || "Annual Sustainability Assessment"
+            const version = ass.assessmentVersion || ass.ratingVersion || "V3.0"
+            const date = ass.assessmentDate || ass.submittedAt || ass.createdAt
+            const formattedDate = date ? new Date(date).toLocaleDateString(undefined, { year: 'numeric', month: 'short' }) : "June 2026"
+            const pct = ass.esgScore || (ass.scoreAchieved ? Math.round((ass.scoreAchieved / 1000) * 100) : 85)
+            const carbon = ass.carbonRating || "A+"
+            const statusVal = ass.status || "Approved"
+            const auditor = ass.auditorName || "GreenCo Audit Team"
+            const grade = ass.overallGrade || ass.ratingLevel || "Platinum"
+            
+            return (
+              <div key={ass.id} className="p-4 bg-slate-50 rounded-xl border border-slate-150 flex flex-col justify-between space-y-3.5 hover:shadow-md transition-all">
+                <div className="space-y-1">
+                  <div className="flex justify-between items-start">
+                    <h4 className="text-xs font-bold text-slate-800 leading-tight pr-2">{name}</h4>
+                    <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider shrink-0">{version}</span>
+                  </div>
+                  <p className="text-[10px] text-slate-450">Date: {formattedDate}</p>
+                </div>
+
+                <div className="grid grid-cols-3 gap-2 bg-white p-2.5 rounded-lg border border-slate-100 text-center">
+                  <div>
+                    <span className="text-[8px] font-bold text-slate-400 uppercase tracking-wider block">ESG Score</span>
+                    <span className="text-xs font-black text-emerald-650 mt-0.5 block">{pct}%</span>
+                  </div>
+                  <div>
+                    <span className="text-[8px] font-bold text-slate-400 uppercase tracking-wider block">Carbon</span>
+                    <span className="text-xs font-black text-slate-800 mt-0.5 block">{carbon}</span>
+                  </div>
+                  <div>
+                    <span className="text-[8px] font-bold text-slate-400 uppercase tracking-wider block">Grade</span>
+                    <span className="text-xs font-black text-indigo-650 mt-0.5 block">{grade}</span>
+                  </div>
+                </div>
+
+                <div className="space-y-1.5 text-[9px] text-slate-500 font-semibold">
+                  <p>Auditor: <span className="text-slate-800 font-bold">{auditor}</span></p>
+                </div>
+
+                <div className="flex justify-between items-center pt-2 border-t border-slate-200/60 mt-auto">
+                  <span className={`inline-flex px-2 py-0.5 rounded font-black text-[9px] uppercase ${
+                    statusVal.toUpperCase() === 'APPROVED' || statusVal.toUpperCase() === 'COMPLETED'
+                      ? 'bg-green-100 text-green-800'
+                      : 'bg-amber-100 text-amber-800'
+                  }`}>
+                    {statusVal.replace(/_/g, ' ')}
+                  </span>
+
+                  <button 
+                    onClick={() => navigate(`/assessments/${ass.id}/workflow`)}
+                    className="px-3 py-1 text-[9px] font-bold bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded shadow-sm transition-all cursor-pointer"
+                  >
+                    View Details
+                  </button>
+                </div>
+              </div>
+            )
+          })}
+        </div>
       </div>
     </div>
   )
