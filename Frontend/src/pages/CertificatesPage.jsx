@@ -107,29 +107,7 @@ function CertificatesPage() {
   const totalPages = Math.max(1, Math.ceil(sortedList.length / pageSize))
   const paginatedList = sortedList.slice(page * pageSize, (page + 1) * pageSize)
 
-  const handleDownloadPdf = async (id) => {
-    try {
-      const response = await api.get(`/certificates/${id}/download`, {
-        responseType: 'blob'
-      })
 
-      const blob = new Blob([response.data], {
-        type: 'text/plain'
-      })
-
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `certificate-${id}.txt`
-      document.body.appendChild(a)
-      a.click()
-      a.remove()
-      URL.revokeObjectURL(url)
-      toast.success('Certificate plain text downloaded successfully!')
-    } catch (err) {
-      toast.error('Failed to download certificate plain text.')
-    }
-  }
 
   const handlePrintCertificate = () => {
     window.print()
@@ -197,13 +175,6 @@ function CertificatesPage() {
             >
               <Printer size={14} />
               Print Certificate
-            </button>
-            <button 
-              onClick={() => handleDownloadPdf(cert.id)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-slate-200 hover:bg-slate-50 text-slate-650 rounded-xl font-semibold text-xs transition-colors"
-            >
-              <FileDown size={14} />
-              Get Plain Text
             </button>
             <button 
               onClick={() => setViewingCert(null)}
@@ -505,13 +476,6 @@ function CertificatesPage() {
                             View Certificate
                           </button>
 
-                          <button 
-                            onClick={() => handleDownloadPdf(cert.id)}
-                            className="text-blue-600 hover:text-blue-800 inline-flex items-center gap-0.5"
-                          >
-                            <FileDown size={13} />
-                            Txt File
-                          </button>
                         </td>
                       </tr>
                     ))}
