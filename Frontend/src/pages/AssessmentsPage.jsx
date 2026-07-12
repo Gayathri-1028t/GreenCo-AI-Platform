@@ -166,7 +166,20 @@ function AssessmentsPage() {
   }
 
   // Client-side filtering & sorting
-  const rawList = assessmentsData || []
+  const rawList = (assessmentsData || []).map(item => {
+    const score = item.scoreAchieved || 0
+    let level = 'Certified'
+    if (score >= 900) level = 'Platinum'
+    else if (score >= 800) level = 'Gold'
+    else if (score >= 700) level = 'Silver'
+    else if (score >= 600) level = 'Bronze'
+    
+    return {
+      ...item,
+      ratingLevel: item.ratingLevel || level,
+      certificationLevel: item.certificationLevel || level
+    }
+  })
 
   const filteredList = rawList.filter(item => {
     const matchesSearch = search ? (
@@ -176,7 +189,7 @@ function AssessmentsPage() {
     const matchesCompany = selectedCompanyId ? item.companyId === parseInt(selectedCompanyId) : true
     const matchesFactory = selectedFactoryId ? item.factoryId === parseInt(selectedFactoryId) : true
     const matchesStatus = selectedStatus ? item.status === selectedStatus : true
-    const matchesGrade = selectedGrade ? item.ratingLevel === selectedGrade : true
+    const matchesGrade = selectedGrade ? item.certificationLevel === selectedGrade : true
     const matchesYear = selectedYear ? item.createdAt?.startsWith(selectedYear) : true
 
     return matchesSearch && matchesCompany && matchesFactory && matchesStatus && matchesGrade && matchesYear
@@ -665,6 +678,7 @@ function AssessmentsPage() {
                             item.ratingLevel === 'Platinum' ? 'bg-indigo-100 text-indigo-800' :
                             item.ratingLevel === 'Gold' ? 'bg-amber-100 text-amber-800' :
                             item.ratingLevel === 'Silver' ? 'bg-slate-100 text-slate-800' :
+                            item.ratingLevel === 'Bronze' ? 'bg-orange-100 text-orange-800' :
                             'bg-emerald-100 text-emerald-800'
                           }`}>
                             {item.ratingLevel || 'N/A'}
