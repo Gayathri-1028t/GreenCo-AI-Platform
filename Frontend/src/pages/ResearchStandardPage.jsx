@@ -6,7 +6,6 @@ import {
   ChevronRight, 
   Bookmark, 
   Share2, 
-  Download, 
   Clock, 
   Calendar, 
   User, 
@@ -249,9 +248,7 @@ function ResearchStandardPage() {
     toast.success(isBookmarked ? "Bookmark removed." : "Standard bookmarked successfully!")
   }
 
-  const handleDownload = () => {
-    toast.success(`${standard.title} offline pack downloaded successfully!`)
-  }
+
 
   const sectionKeys = Object.keys(standard.sections)
   
@@ -324,13 +321,6 @@ function ResearchStandardPage() {
           >
             <Share2 size={14} />
             Share
-          </button>
-          <button 
-            onClick={handleDownload}
-            className="flex-1 lg:flex-none inline-flex items-center justify-center gap-1.5 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-md transition-all cursor-pointer"
-          >
-            <Download size={14} />
-            {standard.downloadStatus}
           </button>
         </div>
       </div>
