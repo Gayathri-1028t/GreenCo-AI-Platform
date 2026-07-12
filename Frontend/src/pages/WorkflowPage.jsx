@@ -17,6 +17,174 @@ const WORKFLOW_STEPS = [
   { code: 'COMPLETED', label: 'Completed' }
 ]
 
+const COMPANY_NAMES = [
+  "SteelCorp Industries",
+  "Eco Cement Ltd",
+  "GreenTextiles Pvt Ltd",
+  "SolarTech Energy",
+  "Smart Chemicals Ltd",
+  "Future Plastics",
+  "Green Metals",
+  "Hydro Industries",
+  "Eco Automotive",
+  "Nature Foods",
+  "Blue Manufacturing",
+  "Sunrise Paper Mills",
+  "Eco Electronics",
+  "Clean Packaging Ltd",
+  "Vision Engineering"
+]
+
+const getFallbackAssessment = (assId) => {
+  const aid = parseInt(assId) || 1
+  const compId = Math.floor(aid / 100) || 1
+  const idx = aid % 100 || 1
+  
+  const companyName = COMPANY_NAMES[compId - 1] || COMPANY_NAMES[0]
+  
+  const names = [
+    "Annual Sustainability Assessment 2026",
+    "Quarterly ESG Assessment",
+    "Water Efficiency Audit",
+    "Carbon Emission Audit",
+    "Renewable Energy Compliance Review"
+  ]
+  const versions = ["V3.0", "V2.1", "V1.8", "V2.0", "V1.5"]
+  const statuses = ["APPROVED", "COMPLETED", "COMPLETED", "APPROVED", "APPROVED"]
+  const scores = [910, 860, 880, 820, 940]
+  const carbonRatings = ["A++", "A+", "A+", "A", "A++"]
+  const grades = ["Platinum", "Gold", "Gold", "Silver", "Platinum"]
+
+  const name = names[idx - 1] || names[0]
+  const version = versions[idx - 1] || versions[0]
+  const status = statuses[idx - 1] || statuses[0]
+  const score = scores[idx - 1] || scores[0]
+  const carbon = carbonRatings[idx - 1] || carbonRatings[0]
+  const grade = grades[idx - 1] || grades[0]
+
+  return {
+    id: aid,
+    companyId: compId,
+    companyName: companyName,
+    factoryName: `${companyName} Plant Asset`,
+    ratingVersion: version,
+    status: status,
+    scoreAchieved: score,
+    carbonRating: carbon,
+    ratingLevel: grade,
+    createdAt: "2026-06-10T10:00:00Z"
+  }
+}
+
+const getDemoTransitions = (assId) => {
+  const aid = parseInt(assId) || 1
+  const compId = Math.floor(aid / 100) || 1
+  
+  const baseDay = 10 + (compId % 15)
+  
+  return [
+    {
+      id: 1,
+      dateTime: `${baseDay} Jun 2026 09:00`,
+      user: "Anjali Sharma",
+      role: "Company Manager",
+      fromState: "None",
+      toState: "Draft",
+      action: "Draft Created",
+      remarks: "Self-assessment checklist initialized in draft mode.",
+      statusIcon: "Clock"
+    },
+    {
+      id: 2,
+      dateTime: `${baseDay} Jun 2026 14:30`,
+      user: "Anjali Sharma",
+      role: "Company Manager",
+      fromState: "Draft",
+      toState: "Draft",
+      action: "Resource Data Logged",
+      remarks: "Uploaded electric, water, and solid waste consumption metrics.",
+      statusIcon: "FileText"
+    },
+    {
+      id: 3,
+      dateTime: `${baseDay + 1} Jun 2026 10:15`,
+      user: "Anjali Sharma",
+      role: "Company Manager",
+      fromState: "Draft",
+      toState: "Submitted",
+      action: "Submitted",
+      remarks: "Completed evidence uploads and submitted package for certification review.",
+      statusIcon: "CheckSquare"
+    },
+    {
+      id: 4,
+      dateTime: `${baseDay + 1} Jun 2026 11:45`,
+      user: "Vijay Prasad",
+      role: "Technical Reviewer",
+      fromState: "Submitted",
+      toState: "Technical Review",
+      action: "Technical Review Started",
+      remarks: "Assigned application to core technical evaluation desk.",
+      statusIcon: "Users"
+    },
+    {
+      id: 5,
+      dateTime: `${baseDay + 2} Jun 2026 14:00`,
+      user: "Vijay Prasad",
+      role: "Technical Reviewer",
+      fromState: "Technical Review",
+      toState: "Technical Review",
+      action: "Technical Review Completed",
+      remarks: "All parameter values validated against standard CII baseline criteria.",
+      statusIcon: "ClipboardCheck"
+    },
+    {
+      id: 6,
+      dateTime: `${baseDay + 2} Jun 2026 16:30`,
+      user: "Satish Kumar",
+      role: "Lead Auditor",
+      fromState: "Technical Review",
+      toState: "Site Audit",
+      action: "Site Audit Scheduled",
+      remarks: "Physical plant inspection calendar booked and verified.",
+      statusIcon: "Calendar"
+    },
+    {
+      id: 7,
+      dateTime: `${baseDay + 3} Jun 2026 11:20`,
+      user: "Satish Kumar",
+      role: "Lead Auditor",
+      fromState: "Site Audit",
+      toState: "Site Audit",
+      action: "Site Audit Completed",
+      remarks: "On-site resource verification and security audits successfully completed.",
+      statusIcon: "CheckSquare"
+    },
+    {
+      id: 8,
+      dateTime: `${baseDay + 3} Jun 2026 15:45`,
+      user: "Priya Patel",
+      role: "Sustainability Manager",
+      fromState: "Site Audit",
+      toState: "Management Approval",
+      action: "Compliance Review",
+      remarks: "Final compliance reports compiled and queued for validation sign-off.",
+      statusIcon: "Shield"
+    },
+    {
+      id: 9,
+      dateTime: `${baseDay + 4} Jun 2026 10:30`,
+      user: "Satish Kumar",
+      role: "Lead Auditor",
+      fromState: "Management Approval",
+      toState: "Completed",
+      action: "Final Approval",
+      remarks: "GreenCo Rating Certificate issued successfully.",
+      statusIcon: "Award"
+    }
+  ]
+}
+
 function WorkflowPage() {
   const { id } = useParams()
   const queryClient = useQueryClient()
@@ -29,22 +197,28 @@ function WorkflowPage() {
   )
 
   // 1. Fetch assessment summary
-  const { data: assessment } = useQuery({
+  const { data: rawAssessment, isLoading: isAssessmentLoading } = useQuery({
     queryKey: ['assessment', id],
     queryFn: async () => {
       const response = await api.get(`/assessments/${id}`)
       return response.data.data
-    }
+    },
+    retry: false
   })
 
   // 2. Fetch transition history logs
-  const { data: history, isLoading } = useQuery({
+  const { data: rawHistory, isLoading: isHistoryLoading } = useQuery({
     queryKey: ['workflow-history', id],
     queryFn: async () => {
       const response = await api.get(`/workflow/assessments/${id}/history`)
       return response.data.data
-    }
+    },
+    retry: false
   })
+
+  const assessment = rawAssessment || getFallbackAssessment(id)
+  const history = rawHistory && rawHistory.length > 0 ? rawHistory : getDemoTransitions(id)
+  const isLoading = (isAssessmentLoading || isHistoryLoading) && !rawAssessment && !assessment
 
   // 3. Transition mutation
   const transitionMutation = useMutation({
@@ -75,7 +249,7 @@ function WorkflowPage() {
   }
 
   // Determine available next states to control select choices dynamically
-  const currentStatus = assessment.status
+  const currentStatus = assessment.status === 'APPROVED' ? 'COMPLETED' : assessment.status
   let nextStates = []
   if (currentStatus === 'DRAFT') {
     nextStates = [{ code: 'SUBMITTED', label: 'Submitted' }]
@@ -115,16 +289,7 @@ function WorkflowPage() {
     { dateTime: '13 Jul 2026 11:20', user: 'Satish Kumar', role: 'Lead Auditor', fromState: 'Certification', toState: 'Completed', action: 'Close rating cycle', remarks: 'All compliance requirements satisfied.' }
   ]
 
-  // Demo Timeline with timestamps
-  const timelineStages = [
-    { code: 'DRAFT', label: 'Draft', timestamp: '10 Jul 2026 09:00' },
-    { code: 'SUBMITTED', label: 'Submitted', timestamp: '12 Jul 2026 09:30' },
-    { code: 'TECHNICAL_REVIEW', label: 'Technical Review', timestamp: '12 Jul 2026 10:15' },
-    { code: 'SITE_AUDIT', label: 'Site Audit', timestamp: '12 Jul 2026 14:45' },
-    { code: 'MANAGEMENT_APPROVAL', label: 'Management Approval', timestamp: '13 Jul 2026 09:00' },
-    { code: 'CERTIFICATION', label: 'Certification', timestamp: '13 Jul 2026 10:00' },
-    { code: 'COMPLETED', label: 'Completed', timestamp: '13 Jul 2026 11:20' }
-  ]
+
 
   // Demo Activity Feed (at least 20 activities)
   const activityFeed = [
@@ -183,6 +348,26 @@ function WorkflowPage() {
     return 'Pending Review';
   }
 
+  const displayHistory = history.map(log => {
+    const dateTime = log.dateTime || (log.transitionDate ? new Date(log.transitionDate).toLocaleString() : '')
+    const user = log.user || log.assignedToName || 'System'
+    const role = log.role || 'Coordinator'
+    const fromState = log.fromState || log.fromStatus || 'None'
+    const toState = log.toState || log.toStatus || 'Draft'
+    const action = log.action || `Transition to ${toState}`
+    const remarks = log.remarks || log.comment || 'Transition completed.'
+    return { dateTime, user, role, fromState, toState, action, remarks }
+  })
+
+  const timelineStages = WORKFLOW_STEPS.map(step => {
+    const matchingLog = displayHistory.find(log => log.toState.toUpperCase() === step.code)
+    return {
+      code: step.code,
+      label: step.label,
+      timestamp: matchingLog ? matchingLog.dateTime : ''
+    }
+  })
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -235,32 +420,32 @@ function WorkflowPage() {
                 <Clock className="text-emerald-600" size={18} />
                 Transition Audit Trail
               </h2>
-              <span className="text-[10px] text-slate-400 font-bold uppercase">{demoTransitionTrail.length} records</span>
+              <span className="text-[10px] text-slate-400 font-bold uppercase">{displayHistory.length} records</span>
             </div>
             
             <div className="overflow-x-auto scrollbar-thin">
               <table className="min-w-full divide-y divide-slate-150">
-                <thead className="bg-slate-50/70">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-[10px] font-bold text-slate-500 uppercase tracking-wider">Date & Time</th>
-                    <th className="px-4 py-3 text-left text-[10px] font-bold text-slate-500 uppercase tracking-wider">User Name</th>
-                    <th className="px-4 py-3 text-left text-[10px] font-bold text-slate-500 uppercase tracking-wider">Role</th>
-                    <th className="px-4 py-3 text-left text-[10px] font-bold text-slate-500 uppercase tracking-wider">Previous State</th>
-                    <th className="px-4 py-3 text-left text-[10px] font-bold text-slate-500 uppercase tracking-wider">New State</th>
-                    <th className="px-4 py-3 text-left text-[10px] font-bold text-slate-500 uppercase tracking-wider">Action Performed</th>
-                    <th className="px-4 py-3 text-left text-[10px] font-bold text-slate-500 uppercase tracking-wider">Remarks</th>
+                <thead className="bg-slate-55">
+                  <tr className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-left">Date & Time</th>
+                    <th className="px-4 py-3 text-left">User Name</th>
+                    <th className="px-4 py-3 text-left">Role</th>
+                    <th className="px-4 py-3 text-left">Previous State</th>
+                    <th className="px-4 py-3 text-left">New State</th>
+                    <th className="px-4 py-3 text-left">Action Performed</th>
+                    <th className="px-4 py-3 text-left">Remarks</th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-slate-100">
-                  {demoTransitionTrail.map((log, index) => (
-                    <tr key={index} className="hover:bg-slate-50/45 text-xs transition-colors">
-                      <td className="px-4 py-3.5 whitespace-nowrap font-semibold text-slate-500">{log.dateTime}</td>
-                      <td className="px-4 py-3.5 whitespace-nowrap font-bold text-slate-850">{log.user}</td>
-                      <td className="px-4 py-3.5 whitespace-nowrap font-semibold text-slate-500">{log.role}</td>
-                      <td className="px-4 py-3.5 whitespace-nowrap text-slate-500">{log.fromState}</td>
-                      <td className="px-4 py-3.5 whitespace-nowrap font-bold text-emerald-700">{log.toState}</td>
-                      <td className="px-4 py-3.5 whitespace-nowrap text-slate-700 font-semibold">{log.action}</td>
-                      <td className="px-4 py-3.5 text-slate-500 italic max-w-xs truncate" title={log.remarks}>{log.remarks}</td>
+                <tbody className="bg-white divide-y divide-slate-100 text-xs">
+                  {displayHistory.map((log, index) => (
+                    <tr key={index} className="hover:bg-slate-50/45 transition-colors">
+                      <td className="px-4 py-3 whitespace-nowrap font-semibold text-slate-550">{log.dateTime}</td>
+                      <td className="px-4 py-3 whitespace-nowrap font-bold text-slate-800">{log.user}</td>
+                      <td className="px-4 py-3 whitespace-nowrap font-semibold text-slate-500">{log.role}</td>
+                      <td className="px-4 py-3 whitespace-nowrap text-slate-500">{log.fromState}</td>
+                      <td className="px-4 py-3 whitespace-nowrap font-bold text-emerald-700">{log.toState}</td>
+                      <td className="px-4 py-3 whitespace-nowrap text-slate-700 font-semibold">{log.action}</td>
+                      <td className="px-4 py-3 text-slate-500 italic max-w-xs truncate" title={log.remarks}>{log.remarks}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -324,7 +509,7 @@ function WorkflowPage() {
               </div>
               <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-100 col-span-2">
                 <span className="text-slate-400 block text-[9px] uppercase font-bold">Last Modified Date</span>
-                <span className="font-bold text-slate-800">12 Jul 2026 14:45</span>
+                <span className="font-bold text-slate-800">{displayHistory[displayHistory.length - 1]?.dateTime || '12 Jul 2026 14:45'}</span>
               </div>
               <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-100 col-span-2">
                 <span className="text-slate-400 block text-[9px] uppercase font-bold">Approval Status</span>
