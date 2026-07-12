@@ -15,7 +15,9 @@ import {
   Tooltip, 
   ResponsiveContainer, 
   Legend, 
-  Cell 
+  Cell,
+  PieChart,
+  Pie
 } from 'recharts'
 import { 
   Search, 
@@ -45,6 +47,444 @@ import {
   Eye,
   FileSpreadsheet
 } from 'lucide-react'
+
+const FRONTEND_DEMO_COMPANIES = [
+  {
+    id: 1,
+    legalName: "SteelCorp Industries",
+    name: "SteelCorp Industries",
+    industry: "Metals",
+    industryType: "Metals",
+    headquartersAddress: "12 Industrial Estate, Guindy, Chennai, TN",
+    location: "Chennai, TN",
+    employeeCount: 1200,
+    employees: 1200,
+    factoryCount: 3,
+    sustainabilityScore: 82.5,
+    carbonRating: "A+",
+    waterEfficiency: "92%",
+    renewableEnergy: 64,
+    esgRating: "AA",
+    ratingLevel: "GOLD",
+    certificationLevel: "GOLD",
+    status: "ACTIVE",
+    createdDate: "2024-05-15",
+    description: "Leading metallurgy and steel manufacturing company focusing on energy-efficient arc furnaces and carbon offset initiatives.",
+    ceo: "Rajesh Kumar",
+    contactEmail: "info@steelcorp.com",
+    contactPhone: "+91 44 2490 8123",
+    website: "https://www.steelcorp.com",
+    annualRevenue: 420.5,
+    foundedYear: 1998,
+    logoUrl: "https://placehold.co/100x100/10b981/ffffff?text=SC"
+  },
+  {
+    id: 2,
+    legalName: "Eco Cement Ltd",
+    name: "Eco Cement Ltd",
+    industry: "Cement & Glass",
+    industryType: "Cement & Glass",
+    headquartersAddress: "45 Kurichi Industrial Area, Coimbatore, TN",
+    location: "Coimbatore, TN",
+    employeeCount: 850,
+    employees: 850,
+    factoryCount: 2,
+    sustainabilityScore: 78.4,
+    carbonRating: "A",
+    waterEfficiency: "88%",
+    renewableEnergy: 45,
+    esgRating: "A",
+    ratingLevel: "SILVER",
+    certificationLevel: "SILVER",
+    status: "ACTIVE",
+    createdDate: "2024-06-20",
+    description: "Specialized in eco-friendly cement clinker formulations and waste heat recovery systems for modern building aggregates.",
+    ceo: "Suresh Menon",
+    contactEmail: "contact@ecocement.co.in",
+    contactPhone: "+91 422 2678 1234",
+    website: "https://www.ecocement.co.in",
+    annualRevenue: 290.0,
+    foundedYear: 2005,
+    logoUrl: "https://placehold.co/100x100/10b981/ffffff?text=EC"
+  },
+  {
+    id: 3,
+    legalName: "GreenTextiles Pvt Ltd",
+    name: "GreenTextiles Pvt Ltd",
+    industry: "Textiles",
+    industryType: "Textiles",
+    headquartersAddress: "88 Peepul Road, Tiruppur, TN",
+    location: "Tiruppur, TN",
+    employeeCount: 1500,
+    employees: 1500,
+    factoryCount: 3,
+    sustainabilityScore: 71.3,
+    carbonRating: "B",
+    waterEfficiency: "76%",
+    renewableEnergy: 35,
+    esgRating: "BBB",
+    ratingLevel: "BRONZE",
+    certificationLevel: "BRONZE",
+    status: "ACTIVE",
+    createdDate: "2024-07-02",
+    description: "Premium organic cotton processing, zero-liquid-discharge dyeing facilities, and solar-integrated spinning loops.",
+    ceo: "Anjali Sharma",
+    contactEmail: "admin@greentextiles.com",
+    contactPhone: "+91 421 2476 5678",
+    website: "https://www.greentextiles.com",
+    annualRevenue: 150.2,
+    foundedYear: 2012,
+    logoUrl: "https://placehold.co/100x100/10b981/ffffff?text=GT"
+  },
+  {
+    id: 4,
+    legalName: "SolarTech Energy",
+    name: "SolarTech Energy",
+    industry: "Power Utilities",
+    industryType: "Power Utilities",
+    headquartersAddress: "102 Whitefield Tech Park, Bengaluru, KA",
+    location: "Bengaluru, KA",
+    employeeCount: 620,
+    employees: 620,
+    factoryCount: 2,
+    sustainabilityScore: 92.1,
+    carbonRating: "A++",
+    waterEfficiency: "95%",
+    renewableEnergy: 98,
+    esgRating: "AAA",
+    ratingLevel: "PLATINUM",
+    certificationLevel: "PLATINUM",
+    status: "ACTIVE",
+    createdDate: "2024-03-10",
+    description: "Pioneering utility-scale solar generation, microgrids, and high-efficiency photovoltaic assembly complexes.",
+    ceo: "Vikram Hegde",
+    contactEmail: "hello@solartech.org",
+    contactPhone: "+91 80 4123 9999",
+    website: "https://www.solartech.org",
+    annualRevenue: 510.0,
+    foundedYear: 2015,
+    logoUrl: "https://placehold.co/100x100/10b981/ffffff?text=ST"
+  },
+  {
+    id: 5,
+    legalName: "Smart Chemicals Ltd",
+    name: "Smart Chemicals Ltd",
+    industry: "Chemicals",
+    industryType: "Chemicals",
+    headquartersAddress: "GIDC Industrial Zone, Vadodara, GJ",
+    location: "Vadodara, GJ",
+    employeeCount: 780,
+    employees: 780,
+    factoryCount: 1,
+    sustainabilityScore: 91.2,
+    carbonRating: "A+",
+    waterEfficiency: "90%",
+    renewableEnergy: 82,
+    esgRating: "AA",
+    ratingLevel: "PLATINUM",
+    certificationLevel: "PLATINUM",
+    status: "ACTIVE",
+    createdDate: "2024-02-18",
+    description: "Green chemical synthesis, biological solvent production, and comprehensive toxic residue neutralisation systems.",
+    ceo: "Dr. K. Patel",
+    contactEmail: "sales@smartchemicals.com",
+    contactPhone: "+91 265 2341 0000",
+    website: "https://www.smartchemicals.com",
+    annualRevenue: 340.5,
+    foundedYear: 2008,
+    logoUrl: "https://placehold.co/100x100/10b981/ffffff?text=SC"
+  },
+  {
+    id: 6,
+    legalName: "Future Plastics",
+    name: "Future Plastics",
+    industry: "Chemicals",
+    industryType: "Chemicals",
+    headquartersAddress: "66 Noida Sector 63, UP",
+    location: "Noida, UP",
+    employeeCount: 450,
+    employees: 450,
+    factoryCount: 1,
+    sustainabilityScore: 68.2,
+    carbonRating: "B",
+    waterEfficiency: "72%",
+    renewableEnergy: 25,
+    esgRating: "BB",
+    ratingLevel: "BRONZE",
+    certificationLevel: "BRONZE",
+    status: "ACTIVE",
+    createdDate: "2024-08-14",
+    description: "Developing biodegradable polymer resins and starch-based alternatives to eliminate single-use plastics.",
+    ceo: "Amit Verma",
+    contactEmail: "contact@futureplastics.in",
+    contactPhone: "+91 120 4889 1234",
+    website: "https://www.futureplastics.in",
+    annualRevenue: 85.0,
+    foundedYear: 2019,
+    logoUrl: "https://placehold.co/100x100/10b981/ffffff?text=FP"
+  },
+  {
+    id: 7,
+    legalName: "Green Metals",
+    name: "Green Metals",
+    industry: "Metals",
+    industryType: "Metals",
+    headquartersAddress: "99 Kalina Estate, Mumbai, MH",
+    location: "Mumbai, MH",
+    employeeCount: 1100,
+    employees: 1100,
+    factoryCount: 2,
+    sustainabilityScore: 89.6,
+    carbonRating: "A+",
+    waterEfficiency: "91%",
+    renewableEnergy: 75,
+    esgRating: "AA",
+    ratingLevel: "GOLD",
+    certificationLevel: "GOLD",
+    status: "ACTIVE",
+    createdDate: "2024-01-22",
+    description: "Advanced non-ferrous metal recycling and green alloy fabrication with low embedded carbon footprints.",
+    ceo: "Mohit Singhal",
+    contactEmail: "info@greenmetals.com",
+    contactPhone: "+91 22 2890 4567",
+    website: "https://www.greenmetals.com",
+    annualRevenue: 620.0,
+    foundedYear: 2011,
+    logoUrl: "https://placehold.co/100x100/10b981/ffffff?text=GM"
+  },
+  {
+    id: 8,
+    legalName: "Hydro Industries",
+    name: "Hydro Industries",
+    industry: "Water supply",
+    industryType: "Water supply",
+    headquartersAddress: "22 Gachibowli, Hyderabad, TS",
+    location: "Hyderabad, TS",
+    employeeCount: 950,
+    employees: 950,
+    factoryCount: 2,
+    sustainabilityScore: 74.8,
+    carbonRating: "A",
+    waterEfficiency: "89%",
+    renewableEnergy: 60,
+    esgRating: "A",
+    ratingLevel: "SILVER",
+    certificationLevel: "SILVER",
+    status: "ACTIVE",
+    createdDate: "2024-09-05",
+    description: "Specialized in industrial wastewater treatment plants, reverse osmosis, and municipal water conservation systems.",
+    ceo: "Satish Kumar",
+    contactEmail: "reachus@hydroindustries.co.in",
+    contactPhone: "+91 40 6677 8899",
+    website: "https://www.hydroindustries.co.in",
+    annualRevenue: 180.0,
+    foundedYear: 2003,
+    logoUrl: "https://placehold.co/100x100/10b981/ffffff?text=HI"
+  },
+  {
+    id: 9,
+    legalName: "Eco Automotive",
+    name: "Eco Automotive",
+    industry: "Automotive",
+    industryType: "Automotive",
+    headquartersAddress: "10 Chakan MIDC, Pune, MH",
+    location: "Pune, MH",
+    employeeCount: 3500,
+    employees: 3500,
+    factoryCount: 4,
+    sustainabilityScore: 86.4,
+    carbonRating: "A+",
+    waterEfficiency: "85%",
+    renewableEnergy: 70,
+    esgRating: "AA",
+    ratingLevel: "GOLD",
+    certificationLevel: "GOLD",
+    status: "ACTIVE",
+    createdDate: "2024-04-12",
+    description: "Hybrid drivetrains, EV component forging, and recycling-oriented vehicle disassembly infrastructure.",
+    ceo: "Prakash Chawla",
+    contactEmail: "press@ecoauto.com",
+    contactPhone: "+91 20 2744 5566",
+    website: "https://www.ecoauto.com",
+    annualRevenue: 1250.0,
+    foundedYear: 1995,
+    logoUrl: "https://placehold.co/100x100/10b981/ffffff?text=EA"
+  },
+  {
+    id: 10,
+    legalName: "Nature Foods",
+    name: "Nature Foods",
+    industry: "Food & Beverage",
+    industryType: "Food & Beverage",
+    headquartersAddress: "88 Salt Lake, Kolkata, WB",
+    location: "Kolkata, WB",
+    employeeCount: 890,
+    employees: 890,
+    factoryCount: 1,
+    sustainabilityScore: 64.5,
+    carbonRating: "C",
+    waterEfficiency: "70%",
+    renewableEnergy: 20,
+    esgRating: "B",
+    ratingLevel: "BRONZE",
+    certificationLevel: "BRONZE",
+    status: "ACTIVE",
+    createdDate: "2024-10-30",
+    description: "Organic food processing, green cold chains, and crop protection schemes powered by rural biogas networks.",
+    ceo: "Siddharth Dey",
+    contactEmail: "hello@naturefoods.co.in",
+    contactPhone: "+91 33 2415 6789",
+    website: "https://www.naturefoods.co.in",
+    annualRevenue: 110.0,
+    foundedYear: 2016,
+    logoUrl: "https://placehold.co/100x100/10b981/ffffff?text=NF"
+  },
+  {
+    id: 11,
+    legalName: "Blue Manufacturing",
+    name: "Blue Manufacturing",
+    industry: "Metals",
+    industryType: "Metals",
+    headquartersAddress: "12 Guindy Estate, Chennai, TN",
+    location: "Chennai, TN",
+    employeeCount: 740,
+    employees: 740,
+    factoryCount: 1,
+    sustainabilityScore: 79.8,
+    carbonRating: "A",
+    waterEfficiency: "83%",
+    renewableEnergy: 55,
+    esgRating: "A",
+    ratingLevel: "SILVER",
+    certificationLevel: "SILVER",
+    status: "ACTIVE",
+    createdDate: "2024-11-15",
+    description: "Precision high-strength structural metal stamping using cold press techniques powered by roof-mounted solar.",
+    ceo: "Hari Narayanan",
+    contactEmail: "ops@bluemanufacturing.com",
+    contactPhone: "+91 44 2234 5678",
+    website: "https://www.bluemanufacturing.com",
+    annualRevenue: 220.0,
+    foundedYear: 2000,
+    logoUrl: "https://placehold.co/100x100/10b981/ffffff?text=BM"
+  },
+  {
+    id: 12,
+    legalName: "Sunrise Paper Mills",
+    name: "Sunrise Paper Mills",
+    industry: "Paper",
+    industryType: "Paper",
+    headquartersAddress: "44 Focal Point, Ludhiana, PB",
+    location: "Ludhiana, PB",
+    employeeCount: 680,
+    employees: 680,
+    factoryCount: 1,
+    sustainabilityScore: 75.3,
+    carbonRating: "A",
+    waterEfficiency: "86%",
+    renewableEnergy: 65,
+    esgRating: "A",
+    ratingLevel: "SILVER",
+    certificationLevel: "SILVER",
+    status: "ACTIVE",
+    createdDate: "2024-12-05",
+    description: "Using 100% recycled fibers and chlorine-free bleaching with closed-loop effluent recycle systems.",
+    ceo: "J. S. Dhillon",
+    contactEmail: "info@sunrisepaper.com",
+    contactPhone: "+91 161 2567 890",
+    website: "https://www.sunrisepaper.com",
+    annualRevenue: 98.4,
+    foundedYear: 1991,
+    logoUrl: "https://placehold.co/100x100/10b981/ffffff?text=SP"
+  },
+  {
+    id: 13,
+    legalName: "Eco Electronics",
+    name: "Eco Electronics",
+    industry: "Electronics",
+    industryType: "Electronics",
+    headquartersAddress: "88 Verna Industrial Area, Goa",
+    location: "Goa",
+    employeeCount: 1100,
+    employees: 1100,
+    factoryCount: 1,
+    sustainabilityScore: 83.2,
+    carbonRating: "A+",
+    waterEfficiency: "88%",
+    renewableEnergy: 72,
+    esgRating: "AA",
+    ratingLevel: "GOLD",
+    certificationLevel: "GOLD",
+    status: "ACTIVE",
+    createdDate: "2025-01-20",
+    description: "High-efficiency semiconductor sub-assembly, lead-free soldering, and e-waste recapture programs.",
+    ceo: "Fernandes D'Souza",
+    contactEmail: "compliance@ecoele.com",
+    contactPhone: "+91 832 2789 123",
+    website: "https://www.ecoele.com",
+    annualRevenue: 410.0,
+    foundedYear: 2014,
+    logoUrl: "https://placehold.co/100x100/10b981/ffffff?text=EE"
+  },
+  {
+    id: 14,
+    legalName: "Clean Packaging Ltd",
+    name: "Clean Packaging Ltd",
+    industry: "Paper",
+    industryType: "Paper",
+    headquartersAddress: "123 Industrial Area, Haridwar, UK",
+    location: "Haridwar, UK",
+    employeeCount: 2200,
+    employees: 2200,
+    factoryCount: 2,
+    sustainabilityScore: 69.4,
+    carbonRating: "B",
+    waterEfficiency: "74%",
+    renewableEnergy: 40,
+    esgRating: "BBB",
+    ratingLevel: "BRONZE",
+    certificationLevel: "BRONZE",
+    status: "ACTIVE",
+    createdDate: "2025-02-12",
+    description: "Recyclable kraft paper boxes and plant-fiber-based honeycomb cushioning for e-commerce logistics.",
+    ceo: "R. K. Rastogi",
+    contactEmail: "support@cleanpkg.com",
+    contactPhone: "+91 1334 256 789",
+    website: "https://www.cleanpkg.com",
+    annualRevenue: 175.5,
+    foundedYear: 2007,
+    logoUrl: "https://placehold.co/100x100/10b981/ffffff?text=CP"
+  },
+  {
+    id: 15,
+    legalName: "Vision Engineering",
+    name: "Vision Engineering",
+    industry: "Automotive",
+    industryType: "Automotive",
+    headquartersAddress: "10 Industrial Complex, Sanand, GJ",
+    location: "Sanand, GJ",
+    employeeCount: 930,
+    employees: 930,
+    factoryCount: 2,
+    sustainabilityScore: 94.7,
+    carbonRating: "A++",
+    waterEfficiency: "94%",
+    renewableEnergy: 90,
+    esgRating: "AAA",
+    ratingLevel: "PLATINUM",
+    certificationLevel: "PLATINUM",
+    status: "ACTIVE",
+    createdDate: "2025-03-01",
+    description: "Precision low-tolerance green tooling, automation controllers, and zero-emission manufacturing systems.",
+    ceo: "Aniket Mehta",
+    contactEmail: "contact@visioneng.co.in",
+    contactPhone: "+91 2717 241 123",
+    website: "https://www.visioneng.co.in",
+    annualRevenue: 380.0,
+    foundedYear: 2010,
+    logoUrl: "https://placehold.co/100x100/10b981/ffffff?text=VE"
+  }
+]
 
 function CompanyPage() {
   const navigate = useNavigate()
@@ -208,7 +648,7 @@ function CompanyPage() {
   }
 
   // Client-side filtering, sorting and pagination
-  const rawList = companiesData?.content || []
+  const rawList = (companiesData?.content && companiesData.content.length > 0) ? companiesData.content : FRONTEND_DEMO_COMPANIES
   
   // 1. Filter
   const filteredList = rawList.filter(comp => {
@@ -535,6 +975,42 @@ function CompanyPage() {
     )
   }
 
+  // Chart datasets
+  const industryDistributionData = [
+    { name: 'Metals', count: 4 },
+    { name: 'Cement', count: 2 },
+    { name: 'Textiles', count: 2 },
+    { name: 'Utilities', count: 2 },
+    { name: 'Chemicals', count: 2 },
+    { name: 'Automotive', count: 2 },
+    { name: 'Paper', count: 1 }
+  ]
+
+  const certDistributionData = [
+    { name: 'Platinum', value: 3, color: '#a855f7' },
+    { name: 'Gold', value: 5, color: '#eab308' },
+    { name: 'Silver', value: 4, color: '#94a3b8' },
+    { name: 'Bronze', value: 3, color: '#f97316' }
+  ]
+
+  const companyGrowthData = [
+    { year: '2022', Companies: 6 },
+    { year: '2023', Companies: 9 },
+    { year: '2024', Companies: 12 },
+    { year: '2025', Companies: 14 },
+    { year: '2026', Companies: 15 }
+  ]
+
+  const esgComparisonData = [
+    { name: 'SteelCorp', Score: 82.5 },
+    { name: 'Eco Cement', Score: 78.4 },
+    { name: 'GreenTextiles', Score: 71.3 },
+    { name: 'SolarTech', Score: 92.1 },
+    { name: 'Smart Chem', Score: 91.2 },
+    { name: 'Green Metals', Score: 89.6 },
+    { name: 'Hydro Ind', Score: 74.8 }
+  ]
+
   // Registry Listing View for Assessors & Admins
   return (
     <div className="space-y-6">
@@ -562,6 +1038,99 @@ function CompanyPage() {
               Add Company
             </button>
           )}
+        </div>
+      </div>
+
+      {/* Statistics Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col items-center justify-center text-center">
+          <span className="text-slate-400 block text-[9px] uppercase font-bold tracking-wider">Total Companies</span>
+          <span className="text-lg font-black text-slate-800 mt-1">15</span>
+        </div>
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col items-center justify-center text-center">
+          <span className="text-slate-400 block text-[9px] uppercase font-bold tracking-wider">Active Companies</span>
+          <span className="text-lg font-black text-slate-800 mt-1">15</span>
+        </div>
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col items-center justify-center text-center">
+          <span className="text-slate-400 block text-[9px] uppercase font-bold tracking-wider">Average ESG Score</span>
+          <span className="text-lg font-black text-emerald-600 mt-1">81.2%</span>
+        </div>
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col items-center justify-center text-center">
+          <span className="text-slate-400 block text-[9px] uppercase font-bold tracking-wider">Average Carbon Reduction</span>
+          <span className="text-lg font-black text-emerald-600 mt-1">18.2%</span>
+        </div>
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col items-center justify-center text-center">
+          <span className="text-slate-400 block text-[9px] uppercase font-bold tracking-wider">Total Factories</span>
+          <span className="text-lg font-black text-slate-800 mt-1">28</span>
+        </div>
+      </div>
+
+      {/* Analytics Charts */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3">
+          <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider text-left">Industry Distribution</h4>
+          <div className="h-40">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={industryDistributionData} margin={{ top: 5, right: 5, left: -25, bottom: 0 }}>
+                <XAxis dataKey="name" stroke="#94a3b8" fontSize={8} tickLine={false} />
+                <YAxis stroke="#94a3b8" fontSize={8} tickLine={false} allowDecimals={false} />
+                <Tooltip contentStyle={{ fontSize: 10 }} />
+                <Bar dataKey="count" fill="#3b82f6" radius={[2, 2, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3">
+          <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider text-left">Certification Levels</h4>
+          <div className="h-40 flex items-center justify-center">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={certDistributionData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={30}
+                  outerRadius={45}
+                  paddingAngle={3}
+                  dataKey="value"
+                >
+                  {certDistributionData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip contentStyle={{ fontSize: 10 }} />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3">
+          <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider text-left">Company Growth</h4>
+          <div className="h-40">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={companyGrowthData} margin={{ top: 5, right: 5, left: -25, bottom: 0 }}>
+                <XAxis dataKey="year" stroke="#94a3b8" fontSize={8} tickLine={false} />
+                <YAxis stroke="#94a3b8" fontSize={8} tickLine={false} />
+                <Tooltip contentStyle={{ fontSize: 10 }} />
+                <Line type="monotone" dataKey="Companies" stroke="#10b981" strokeWidth={2.5} dot={{ r: 2 }} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3">
+          <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider text-left">ESG Score Comparison</h4>
+          <div className="h-40">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={esgComparisonData} margin={{ top: 5, right: 5, left: -25, bottom: 0 }}>
+                <XAxis dataKey="name" stroke="#94a3b8" fontSize={8} tickLine={false} />
+                <YAxis stroke="#94a3b8" fontSize={8} tickLine={false} />
+                <Tooltip contentStyle={{ fontSize: 10 }} />
+                <Bar dataKey="Score" fill="#8b5cf6" radius={[2, 2, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </div>
 
@@ -606,54 +1175,78 @@ function CompanyPage() {
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         {isListLoading ? (
           <div className="p-8 text-center text-slate-500">Loading companies registry...</div>
-        ) : sortedList.length === 0 ? (
+) : sortedList.length === 0 ? (
           <div className="p-8 text-center text-slate-500">No organizations found matching search criteria.</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-slate-150">
-              <thead className="bg-slate-50/40">
-                <tr>
-                  <th onClick={() => toggleSort('legalName')} className="px-6 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-100/50">Company</th>
-                  <th onClick={() => toggleSort('industry')} className="px-6 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-100/50">Sector</th>
-                  <th onClick={() => toggleSort('registrationNumber')} className="px-6 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-100/50">Registration</th>
-                  <th onClick={() => toggleSort('taxId')} className="px-6 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-100/50">GST Number</th>
-                  <th onClick={() => toggleSort('employeeCount')} className="px-6 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-100/50">Employees</th>
-                  <th onClick={() => toggleSort('status')} className="px-6 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-100/50">Status</th>
-                  <th className="px-6 py-3.5 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Actions</th>
+              <thead className="bg-slate-55">
+                <tr className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                  <th onClick={() => toggleSort('legalName')} className="px-4 py-3 text-left cursor-pointer hover:bg-slate-100/50">Company Name</th>
+                  <th onClick={() => toggleSort('industry')} className="px-4 py-3 text-left cursor-pointer hover:bg-slate-100/50">Industry</th>
+                  <th onClick={() => toggleSort('location')} className="px-4 py-3 text-left cursor-pointer hover:bg-slate-100/50">Headquarters</th>
+                  <th onClick={() => toggleSort('factoryCount')} className="px-4 py-3 text-left cursor-pointer hover:bg-slate-100/50">Factories</th>
+                  <th onClick={() => toggleSort('sustainabilityScore')} className="px-4 py-3 text-left cursor-pointer hover:bg-slate-100/50">Sustainability Score</th>
+                  <th onClick={() => toggleSort('carbonRating')} className="px-4 py-3 text-left cursor-pointer hover:bg-slate-100/50">Carbon Rating</th>
+                  <th onClick={() => toggleSort('waterEfficiency')} className="px-4 py-3 text-left cursor-pointer hover:bg-slate-100/50">Water Efficiency</th>
+                  <th onClick={() => toggleSort('renewableEnergy')} className="px-4 py-3 text-left cursor-pointer hover:bg-slate-100/50">Renewable Energy %</th>
+                  <th onClick={() => toggleSort('esgRating')} className="px-4 py-3 text-left cursor-pointer hover:bg-slate-100/50">ESG Rating</th>
+                  <th onClick={() => toggleSort('ratingLevel')} className="px-4 py-3 text-left cursor-pointer hover:bg-slate-100/50">Certification Level</th>
+                  <th onClick={() => toggleSort('status')} className="px-4 py-3 text-left cursor-pointer hover:bg-slate-100/50">Status</th>
+                  <th onClick={() => toggleSort('createdDate')} className="px-4 py-3 text-left cursor-pointer hover:bg-slate-100/50">Created Date</th>
+                  <th className="px-4 py-3 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-slate-100">
+              <tbody className="bg-white divide-y divide-slate-100 text-xs">
                 {paginatedList.map(comp => (
                   <tr key={comp.id} className="hover:bg-slate-50/50 transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-slate-900 flex items-center space-x-3">
+                    <td className="px-4 py-3 whitespace-nowrap font-bold text-slate-900 flex items-center space-x-2">
                       <img 
-                        src={comp.logoUrl || `https://placehold.co/40x40/10b981/ffffff?text=${comp.legalName.substring(0,2).toUpperCase()}`} 
+                        src={comp.logoUrl || `https://placehold.co/32x32/10b981/ffffff?text=${comp.legalName.substring(0,2).toUpperCase()}`} 
                         alt="" 
-                        className="w-8 h-8 rounded-lg border border-slate-150 bg-slate-50 object-cover" 
+                        className="w-6 h-6 rounded-lg border border-slate-150 bg-slate-50 object-cover shrink-0" 
                       />
                       <span>{comp.legalName}</span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-slate-500">{comp.industry || 'Metals'}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-500">{comp.registrationNumber}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-500">{comp.taxId}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-slate-700">{comp.employeeCount || 250}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      <span className={`inline-flex px-2.5 py-1 rounded-full text-[11px] font-semibold tracking-wide ${
-                        comp.status === 'ACTIVE' 
-                          ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' 
-                          : comp.status === 'PENDING_APPROVAL' 
-                          ? 'bg-amber-100 text-amber-800 border border-amber-200' 
-                          : 'bg-rose-100 text-rose-800 border border-rose-200'
+                    <td className="px-4 py-3 whitespace-nowrap font-semibold text-slate-500">{comp.industry || 'Metals'}</td>
+                    <td className="px-4 py-3 whitespace-nowrap text-slate-500">{comp.location || 'Chennai, TN'}</td>
+                    <td className="px-4 py-3 whitespace-nowrap font-bold text-slate-700">{comp.factoryCount || 2}</td>
+                    <td className="px-4 py-3 whitespace-nowrap font-black text-emerald-600">{comp.sustainabilityScore}%</td>
+                    <td className="px-4 py-3 whitespace-nowrap font-bold text-slate-700">{comp.carbonRating || 'A+'}</td>
+                    <td className="px-4 py-3 whitespace-nowrap text-slate-500">{comp.waterEfficiency || '85%'}</td>
+                    <td className="px-4 py-3 whitespace-nowrap font-semibold text-slate-650">{comp.renewableEnergy || 60}%</td>
+                    <td className="px-4 py-3 whitespace-nowrap font-bold text-indigo-650">{comp.esgRating || 'AA'}</td>
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <span className={`inline-flex px-2 py-0.5 rounded font-black text-[9px] uppercase border ${
+                        comp.ratingLevel === 'PLATINUM' 
+                          ? 'bg-purple-100 text-purple-800 border-purple-200' 
+                          : comp.ratingLevel === 'GOLD' 
+                          ? 'bg-amber-100 text-amber-800 border-amber-200' 
+                          : comp.ratingLevel === 'SILVER'
+                          ? 'bg-slate-100 text-slate-800 border-slate-200'
+                          : 'bg-orange-100 text-orange-800 border-orange-200'
                       }`}>
-                        {comp.status.replace(/_/g, ' ')}
+                        {comp.ratingLevel}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-xs font-semibold space-x-3.5 relative">
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <span className={`inline-flex px-2 py-0.5 rounded font-bold text-[9px] uppercase ${
+                        comp.status === 'ACTIVE' 
+                          ? 'bg-green-100 text-green-800' 
+                          : comp.status === 'PENDING_APPROVAL' 
+                          ? 'bg-amber-100 text-amber-800' 
+                          : 'bg-rose-100 text-rose-800'
+                      }`}>
+                        {comp.status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap text-slate-400 font-semibold">{comp.createdDate || '2024-05-15'}</td>
+                    <td className="px-4 py-3 whitespace-nowrap text-right font-semibold space-x-2 relative">
                       <button 
                         onClick={() => navigate(`/companies/${comp.id}`)} 
-                        className="text-emerald-600 hover:text-emerald-850 inline-flex items-center gap-0.5"
+                        className="text-emerald-600 hover:text-emerald-850 inline-flex items-center gap-0.5 cursor-pointer"
                       >
-                        <Eye size={13} />
+                        <Eye size={12} />
                         View
                       </button>
                       
@@ -661,17 +1254,17 @@ function CompanyPage() {
                         <>
                           <button 
                             onClick={() => handleEdit(comp)} 
-                            className="text-blue-600 hover:text-blue-800 inline-flex items-center gap-0.5"
+                            className="text-blue-600 hover:text-blue-800 inline-flex items-center gap-0.5 cursor-pointer"
                           >
-                            <Edit size={13} />
+                            <Edit size={12} />
                             Edit
                           </button>
                           
                           <button 
                             onClick={() => handleDelete(comp.id)} 
-                            className="text-rose-600 hover:text-rose-800 inline-flex items-center gap-0.5"
+                            className="text-rose-600 hover:text-rose-800 inline-flex items-center gap-0.5 cursor-pointer"
                           >
-                            <Trash2 size={13} />
+                            <Trash2 size={12} />
                             Delete
                           </button>
                         </>
