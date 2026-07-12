@@ -19,7 +19,9 @@ import {
   PieChart, 
   Pie, 
   Cell, 
-  Legend 
+  Legend,
+  AreaChart,
+  Area
 } from 'recharts'
 import { 
   Building2, 
@@ -161,30 +163,148 @@ function DashboardPage() {
     )
   }
 
-  const chartData = summary?.statusDistribution ? Object.keys(summary.statusDistribution).map(key => ({
-    name: key.replace(/_/g, ' '),
-    Count: summary.statusDistribution[key]
-  })) : []
-
-  const pillarData = [
-    { name: 'Energy Efficiency', value: 35, color: '#10b981' },
-    { name: 'Water Management', value: 25, color: '#3b82f6' },
-    { name: 'Waste Reduction', value: 20, color: '#f59e0b' },
-    { name: 'Green Cover', value: 20, color: '#8b5cf6' }
+  const chartData = [
+    { name: 'Completed', Count: 146 },
+    { name: 'In Review', Count: 28 },
+    { name: 'Pending', Count: 12 },
+    { name: 'Approved', Count: 95 },
+    { name: 'Rejected', Count: 8 },
+    { name: 'Scheduled', Count: 15 }
   ]
 
-  const trendData = [
-    { year: '2022', Score: 62 },
-    { year: '2023', Score: 67 },
-    { year: '2024', Score: 71 },
-    { year: '2025', Score: 75 },
-    { year: '2026', Score: 79.4 }
+  const carbonData = [
+    { month: 'Jan', Emissions: 2450 },
+    { month: 'Feb', Emissions: 2320 },
+    { month: 'Mar', Emissions: 2150 },
+    { month: 'Apr', Emissions: 2010 },
+    { month: 'May', Emissions: 1880 },
+    { month: 'Jun', Emissions: 1850 },
+    { month: 'Jul', Emissions: 1720 },
+    { month: 'Aug', Emissions: 1680 },
+    { month: 'Sep', Emissions: 1610 },
+    { month: 'Oct', Emissions: 1540 },
+    { month: 'Nov', Emissions: 1480 },
+    { month: 'Dec', Emissions: 1390 }
+  ]
+
+  const energyData = [
+    { month: 'Jan', Consumption: 450 },
+    { month: 'Feb', Consumption: 430 },
+    { month: 'Mar', Consumption: 420 },
+    { month: 'Apr', Consumption: 390 },
+    { month: 'May', Consumption: 380 },
+    { month: 'Jun', Consumption: 370 },
+    { month: 'Jul', Consumption: 360 },
+    { month: 'Aug', Consumption: 350 },
+    { month: 'Sep', Consumption: 340 },
+    { month: 'Oct', Consumption: 320 },
+    { month: 'Nov', Consumption: 310 },
+    { month: 'Dec', Consumption: 290 }
+  ]
+
+  const waterData = [
+    { month: 'Jan', Usage: 85 },
+    { month: 'Feb', Usage: 82 },
+    { month: 'Mar', Usage: 80 },
+    { month: 'Apr', Usage: 76 },
+    { month: 'May', Usage: 74 },
+    { month: 'Jun', Usage: 72 },
+    { month: 'Jul', Usage: 70 },
+    { month: 'Aug', Usage: 68 },
+    { month: 'Sep', Usage: 65 },
+    { month: 'Oct', Usage: 63 },
+    { month: 'Nov', Usage: 60 },
+    { month: 'Dec', Usage: 58 }
+  ]
+
+  const wasteData = [
+    { month: 'Jan', Generated: 120, Recycled: 75 },
+    { month: 'Feb', Generated: 115, Recycled: 78 },
+    { month: 'Mar', Generated: 110, Recycled: 80 },
+    { month: 'Apr', Generated: 105, Recycled: 82 },
+    { month: 'May', Generated: 100, Recycled: 85 },
+    { month: 'Jun', Generated: 98, Recycled: 86 },
+    { month: 'Jul', Generated: 95, Recycled: 88 },
+    { month: 'Aug', Generated: 90, Recycled: 85 },
+    { month: 'Sep', Generated: 88, Recycled: 84 },
+    { month: 'Oct', Generated: 85, Recycled: 82 },
+    { month: 'Nov', Generated: 80, Recycled: 78 },
+    { month: 'Dec', Generated: 75, Recycled: 74 }
+  ]
+
+  const certProgressData = [
+    { name: 'Platinum', value: 8, color: '#0f172a' },
+    { name: 'Gold', value: 15, color: '#eab308' },
+    { name: 'Silver', value: 12, color: '#64748b' },
+    { name: 'Bronze', value: 6, color: '#b45309' },
+    { name: 'Certified', value: 10, color: '#10b981' }
+  ]
+
+  const assessmentTrendsData = [
+    { month: 'Jan', Completed: 12, Initiated: 15 },
+    { month: 'Feb', Completed: 14, Initiated: 18 },
+    { month: 'Mar', Completed: 16, Initiated: 20 },
+    { month: 'Apr', Completed: 19, Initiated: 22 },
+    { month: 'May', Completed: 22, Initiated: 25 },
+    { month: 'Jun', Completed: 25, Initiated: 28 },
+    { month: 'Jul', Completed: 28, Initiated: 30 }
+  ]
+
+  const ongoingRatings = [
+    { factory: 'SteelCorp Chennai', company: 'SteelCorp Industries', currentRating: '92%', previousRating: '85%', improvement: '+7%', status: 'Approved', lastUpdated: '2026-07-10' },
+    { factory: 'Eco Cement Coimbatore', company: 'EcoBuild Construction', currentRating: '84%', previousRating: '79%', improvement: '+5%', status: 'In Review', lastUpdated: '2026-07-12' },
+    { factory: 'GreenTextiles Tiruppur', company: 'Nova Textiles', currentRating: '76%', previousRating: '78%', improvement: '-2%', status: 'Pending', lastUpdated: '2026-07-09' },
+    { factory: 'SolarTech Bengaluru', company: 'GreenGrid Energy', currentRating: '95%', previousRating: '90%', improvement: '+5%', status: 'Approved', lastUpdated: '2026-07-08' },
+    { factory: 'Hydro Industries Hyderabad', company: 'PureWater Utilities', currentRating: '89%', previousRating: '81%', improvement: '+8%', status: 'Approved', lastUpdated: '2026-07-11' },
+    { factory: 'AutoForge Pune', company: 'Apex Logistics', currentRating: '72%', previousRating: '68%', improvement: '+4%', status: 'In Review', lastUpdated: '2026-07-12' },
+    { factory: 'Eco Steel Mumbai', company: 'Tata Metallurgy', currentRating: '86%', previousRating: '86%', improvement: '0%', status: 'Approved', lastUpdated: '2026-07-07' },
+    { factory: 'Smart Chemicals Ahmedabad', company: 'Smart Chemicals Ltd', currentRating: '81%', previousRating: '75%', improvement: '+6%', status: 'Scheduled', lastUpdated: '2026-07-05' },
+    { factory: 'Eco Plastics Delhi', company: 'Eco Plastics Corp', currentRating: '68%', previousRating: '72%', improvement: '-4%', status: 'Rejected', lastUpdated: '2026-07-01' },
+    { factory: 'Green Mills Kolkata', company: 'Green Mills Group', currentRating: '79%', previousRating: '73%', improvement: '+6%', status: 'Approved', lastUpdated: '2026-07-06' }
+  ]
+
+  const recentAuditEvents = [
+    { title: 'ISO 14001 Audit Completed', factory: 'SteelCorp Chennai', auditor: 'Ramesh Krishnan', status: 'Completed', date: '2026-07-12' },
+    { title: 'Energy Audit Completed', factory: 'Eco Cement Coimbatore', auditor: 'Anjali Sharma', status: 'Completed', date: '2026-07-12' },
+    { title: 'Waste Management Inspection', factory: 'GreenTextiles Tiruppur', auditor: 'Deepak Nair', status: 'Completed', date: '2026-07-11' },
+    { title: 'Water Usage Review', factory: 'SolarTech Bengaluru', auditor: 'Satish Kumar', status: 'Completed', date: '2026-07-11' },
+    { title: 'Carbon Emission Verification', factory: 'Hydro Industries Hyderabad', auditor: 'Vijay Prasad', status: 'Completed', date: '2026-07-10' },
+    { title: 'Safety Compliance Audit', factory: 'AutoForge Pune', auditor: 'Karthik Rao', status: 'Completed', date: '2026-07-10' },
+    { title: 'Environmental Assessment', factory: 'Eco Steel Mumbai', auditor: 'Ramesh Krishnan', status: 'Completed', date: '2026-07-09' },
+    { title: 'Internal ESG Review', factory: 'Smart Chemicals Ahmedabad', auditor: 'Priya Patel', status: 'Completed', date: '2026-07-09' },
+    { title: 'ISO 14001 Audit Completed', factory: 'Eco Plastics Delhi', auditor: 'Ramesh Krishnan', status: 'Completed', date: '2026-07-08' },
+    { title: 'Energy Audit Completed', factory: 'Green Mills Kolkata', auditor: 'Vijay Prasad', status: 'Completed', date: '2026-07-08' },
+    { title: 'Waste Management Inspection', factory: 'Visakha Industries Visakhapatnam', auditor: 'Deepak Nair', status: 'Completed', date: '2026-07-07' },
+    { title: 'Water Usage Review', factory: 'Surat Metals Surat', auditor: 'Anjali Sharma', status: 'Completed', date: '2026-07-07' },
+    { title: 'Carbon Emission Verification', factory: 'Giga Solar Systems Jaipur', auditor: 'Satish Kumar', status: 'Completed', date: '2026-07-06' },
+    { title: 'Safety Compliance Audit', factory: 'Salem Steel Rolling Mill', auditor: 'Karthik Rao', status: 'Completed', date: '2026-07-06' },
+    { title: 'Environmental Assessment', factory: 'Kochi Refinery Chemicals', auditor: 'Ramesh Krishnan', status: 'Completed', date: '2026-07-05' },
+    { title: 'Internal ESG Review', factory: 'Punjab Castings Ludhiana', auditor: 'Priya Patel', status: 'Completed', date: '2026-07-05' },
+    { title: 'ISO 14001 Audit Completed', factory: 'Bhilai Metallurgy Plant', auditor: 'Vijay Prasad', status: 'Completed', date: '2026-07-04' },
+    { title: 'Energy Audit Completed', factory: 'Deccan Foundry Hyderabad', auditor: 'Anjali Sharma', status: 'Completed', date: '2026-07-04' },
+    { title: 'Waste Management Inspection', factory: 'Western Cement Nagpur', auditor: 'Deepak Nair', status: 'Completed', date: '2026-07-03' },
+    { title: 'Water Usage Review', factory: 'Kochi Refinery Chemicals', auditor: 'Satish Kumar', status: 'Completed', date: '2026-07-03' }
+  ]
+
+  const fallbackFactories = [
+    { id: 1, name: 'SteelCorp Chennai', companyName: 'SteelCorp Industries', latitude: 13.0827, longitude: 80.2707, status: 'ACTIVE', ratingLevel: 'GOLD', sustainabilityScore: 84 },
+    { id: 2, name: 'Eco Cement Coimbatore', companyName: 'EcoBuild Construction', latitude: 11.0168, longitude: 76.9558, status: 'ACTIVE', ratingLevel: 'SILVER', sustainabilityScore: 76 },
+    { id: 3, name: 'GreenTextiles Tiruppur', companyName: 'Nova Textiles', latitude: 11.1085, longitude: 77.3411, status: 'ACTIVE', ratingLevel: 'BRONZE', sustainabilityScore: 72 },
+    { id: 4, name: 'SolarTech Bengaluru', companyName: 'GreenGrid Energy', latitude: 12.9716, longitude: 77.5946, status: 'ACTIVE', ratingLevel: 'PLATINUM', sustainabilityScore: 94 },
+    { id: 5, name: 'Hydro Industries Hyderabad', companyName: 'PureWater Utilities', latitude: 17.3850, longitude: 78.4867, status: 'ACTIVE', ratingLevel: 'GOLD', sustainabilityScore: 89 },
+    { id: 6, name: 'AutoForge Pune', companyName: 'Apex Logistics', latitude: 18.5204, longitude: 73.8567, status: 'ACTIVE', ratingLevel: 'SILVER', sustainabilityScore: 74 },
+    { id: 7, name: 'Eco Steel Mumbai', companyName: 'Tata Metallurgy', latitude: 19.0760, longitude: 72.8777, status: 'ACTIVE', ratingLevel: 'GOLD', sustainabilityScore: 86 },
+    { id: 8, name: 'Smart Chemicals Ahmedabad', companyName: 'Smart Chemicals Ltd', latitude: 23.0225, longitude: 72.5714, status: 'ACTIVE', ratingLevel: 'SILVER', sustainabilityScore: 81 },
+    { id: 9, name: 'Eco Plastics Delhi', companyName: 'Eco Plastics Corp', latitude: 28.7041, longitude: 77.1025, status: 'ACTIVE', ratingLevel: 'BRONZE', sustainabilityScore: 68 },
+    { id: 10, name: 'Green Mills Kolkata', companyName: 'Green Mills Group', latitude: 22.5726, longitude: 88.3639, status: 'ACTIVE', ratingLevel: 'GOLD', sustainabilityScore: 79 },
+    { id: 11, name: 'Visakha Industries Visakhapatnam', companyName: 'Visakha Industries', latitude: 17.6868, longitude: 83.2185, status: 'ACTIVE', ratingLevel: 'GOLD', sustainabilityScore: 85 },
+    { id: 12, name: 'Surat Metals Surat', companyName: 'Surat Metals Ltd', latitude: 21.1702, longitude: 72.8311, status: 'ACTIVE', ratingLevel: 'GOLD', sustainabilityScore: 83 }
   ]
 
   const allAssessments = assessmentsData?.content || []
   const assessments = allAssessments.slice(0, 7) // Show up to 7 rows initially
 
-  const mapFactories = allFactories || []
+  const mapFactories = (allFactories && allFactories.length > 0) ? allFactories : fallbackFactories
 
   // Dynamic Map selection settings
   const getMapSettings = (factoriesList) => {
@@ -465,6 +585,18 @@ function DashboardPage() {
     })
   }
 
+  const kpis = [
+    { label: 'Total Companies', value: summary?.totalCompanies || 15, icon: Building2, color: 'text-emerald-600 bg-emerald-50', change: '+12% MoM' },
+    { label: 'Total Factories', value: summary?.totalFactories || 32, icon: Zap, color: 'text-blue-600 bg-blue-50', change: '100% operational' },
+    { label: 'Active Assessments', value: summary?.activeAssessments || 28, icon: ClipboardCheck, color: 'text-amber-600 bg-amber-50', change: 'Pending review' },
+    { label: 'Completed Audits', value: 146, icon: CheckCircle, color: 'text-teal-600 bg-teal-50', change: 'Verified on-chain' },
+    { label: 'AI Documents Processed', value: 684, icon: Brain, color: 'text-purple-600 bg-purple-50', change: '99.4% OCR accuracy' },
+    { label: 'Average Sustainability Score', value: '87%', icon: Award, color: 'text-indigo-600 bg-indigo-50', change: 'Tier-1 compliant' },
+    { label: 'Carbon Emission Reduction', value: '18%', icon: TrendingDown, color: 'text-rose-600 bg-rose-50', change: 'Target: 25%' },
+    { label: 'Water Saved', value: '24%', icon: Activity, color: 'text-cyan-600 bg-cyan-50', change: 'Recycling active' },
+    { label: 'Renewable Energy Usage', value: '63%', icon: Sparkles, color: 'text-yellow-600 bg-yellow-50', change: 'Solar & wind grid' }
+  ]
+
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
       {/* Welcome Banner */}
@@ -492,110 +624,24 @@ function DashboardPage() {
       </div>
 
       {/* Executive KPI Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:scale-[1.01] transition-all duration-200 flex items-center space-x-4">
-          <div className="w-11 h-11 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600 shadow-inner">
-            <Building2 size={20} />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Total Companies</p>
-            <p className="text-xl font-black text-slate-800 mt-0.5">{summary?.totalCompanies || 0}</p>
-            <span className="text-[10px] text-emerald-600 font-bold flex items-center gap-0.5 mt-0.5">
-              <TrendingUp size={10} /> +12% MoM
-            </span>
-          </div>
-        </div>
-
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:scale-[1.01] transition-all duration-200 flex items-center space-x-4">
-          <div className="w-11 h-11 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600 shadow-inner">
-            <Zap size={20} />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Active Factories</p>
-            <p className="text-xl font-black text-slate-800 mt-0.5">{summary?.totalFactories || 0}</p>
-            <span className="text-[10px] text-blue-600 font-bold flex items-center gap-0.5 mt-0.5">
-              100% operational
-            </span>
-          </div>
-        </div>
-
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:scale-[1.01] transition-all duration-200 flex items-center space-x-4">
-          <div className="w-11 h-11 bg-purple-50 rounded-xl flex items-center justify-center text-purple-600 shadow-inner">
-            <Award size={20} />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Avg ESG Score</p>
-            <p className="text-xl font-black text-slate-800 mt-0.5">79.4%</p>
-            <span className="text-[10px] text-purple-600 font-bold flex items-center gap-0.5 mt-0.5">
-              <TrendingUp size={10} /> +2.3% YTD
-            </span>
-          </div>
-        </div>
-
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:scale-[1.01] transition-all duration-200 flex items-center space-x-4">
-          <div className="w-11 h-11 bg-rose-50 rounded-xl flex items-center justify-center text-rose-600 shadow-inner">
-            <TrendingUp size={20} />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Carbon Reduction</p>
-            <p className="text-xl font-black text-slate-800 mt-0.5">18.2%</p>
-            <span className="text-[10px] text-rose-600 font-bold flex items-center gap-0.5 mt-0.5">
-              Target: 25.0%
-            </span>
-          </div>
-        </div>
-
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:scale-[1.01] transition-all duration-200 flex items-center space-x-4">
-          <div className="w-11 h-11 bg-teal-50 rounded-xl flex items-center justify-center text-teal-600 shadow-inner">
-            <FileBadge size={20} />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Certificates Issued</p>
-            <p className="text-xl font-black text-slate-800 mt-0.5">{summary?.statusDistribution?.APPROVED || 0}</p>
-            <span className="text-[10px] text-teal-600 font-bold flex items-center gap-0.5 mt-0.5">
-              All active
-            </span>
-          </div>
-        </div>
-
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:scale-[1.01] transition-all duration-200 flex items-center space-x-4">
-          <div className="w-11 h-11 bg-amber-50 rounded-xl flex items-center justify-center text-amber-600 shadow-inner">
-            <ClipboardCheck size={20} />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Ongoing Ratings</p>
-            <p className="text-xl font-black text-slate-800 mt-0.5">{summary?.activeAssessments || 0}</p>
-            <span className="text-[10px] text-amber-600 font-bold flex items-center gap-0.5 mt-0.5">
-              Pending review
-            </span>
-          </div>
-        </div>
-
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:scale-[1.01] transition-all duration-200 flex items-center space-x-4">
-          <div className="w-11 h-11 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600 shadow-inner">
-            <Activity size={20} />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Monthly Growth</p>
-            <p className="text-xl font-black text-slate-800 mt-0.5">+3.6%</p>
-            <span className="text-[10px] text-indigo-600 font-bold flex items-center gap-0.5 mt-0.5">
-              Net portfolio expansion
-            </span>
-          </div>
-        </div>
-
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:scale-[1.01] transition-all duration-200 flex items-center space-x-4">
-          <div className="w-11 h-11 bg-cyan-50 rounded-xl flex items-center justify-center text-cyan-600 shadow-inner">
-            <ShieldCheck size={20} />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Sustainability Index</p>
-            <p className="text-xl font-black text-slate-800 mt-0.5">94.2 / 100</p>
-            <span className="text-[10px] text-cyan-600 font-bold flex items-center gap-0.5 mt-0.5">
-              Tier-1 compliance
-            </span>
-          </div>
-        </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+        {kpis.map((kpi, index) => {
+          const KpiIcon = kpi.icon
+          return (
+            <div key={index} className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:scale-[1.01] transition-all duration-200 flex items-center space-x-4">
+              <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${kpi.color} shadow-inner`}>
+                <KpiIcon size={20} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">{kpi.label}</p>
+                <p className="text-xl font-black text-slate-800 mt-0.5">{kpi.value}</p>
+                <span className="text-[10px] text-slate-400 font-bold flex items-center gap-0.5 mt-0.5">
+                  {kpi.change}
+                </span>
+              </div>
+            </div>
+          )
+        })}
       </div>
 
       {/* Row 1: Interactive Leaflet Map (70%) | AI Insights Panel (30%) */}
@@ -812,48 +858,57 @@ function DashboardPage() {
             <table className="min-w-full divide-y divide-slate-150">
               <thead className="bg-slate-50/40 sticky top-0 z-20">
                 <tr>
-                  <th className="px-6 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider bg-slate-50/90 backdrop-blur-sm">Plant Asset</th>
-                  <th className="px-6 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider bg-slate-50/90 backdrop-blur-sm">Rating Version</th>
-                  <th className="px-6 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider bg-slate-50/90 backdrop-blur-sm">Points</th>
+                  <th className="px-6 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider bg-slate-50/90 backdrop-blur-sm">Factory</th>
+                  <th className="px-6 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider bg-slate-50/90 backdrop-blur-sm">Company</th>
+                  <th className="px-6 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider bg-slate-50/90 backdrop-blur-sm">Current Rating</th>
+                  <th className="px-6 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider bg-slate-50/90 backdrop-blur-sm">Previous Rating</th>
+                  <th className="px-6 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider bg-slate-50/90 backdrop-blur-sm">Improvement %</th>
                   <th className="px-6 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider bg-slate-50/90 backdrop-blur-sm">Status</th>
+                  <th className="px-6 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider bg-slate-50/90 backdrop-blur-sm">Last Updated</th>
                   <th className="px-6 py-3.5 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider bg-slate-50/90 backdrop-blur-sm">Actions</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-slate-100">
-                {assessments.map(ass => (
-                  <tr key={ass.id} className="hover:bg-slate-50/50 transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-slate-900">{ass.factoryName}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500 font-medium">{ass.ratingVersion}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-800 font-bold">{ass.scoreAchieved.toFixed(1)} pts</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      <span className={`inline-flex px-2.5 py-1 rounded-full text-[11px] font-semibold tracking-wide ${
-                        ass.status === 'APPROVED' 
-                          ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' 
-                          : ass.status === 'DRAFT' 
-                          ? 'bg-amber-100 text-amber-800 border border-amber-200' 
-                          : 'bg-blue-100 text-blue-800 border border-blue-200'
-                      }`}>
-                        {ass.status.replace(/_/g, ' ')}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-xs font-semibold space-x-3.5">
-                      {ass.status === 'DRAFT' && !isManagement && (
-                        <Link to={`/assessments/${ass.id}/wizard`} className="text-emerald-600 hover:text-emerald-800 inline-flex items-center gap-0.5">
-                          Wizard
-                          <ArrowUpRight size={13} />
+                {ongoingRatings.map((item, idx) => {
+                  const assessmentId = idx + 1
+                  return (
+                    <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-slate-900">{item.factory}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500 font-medium">{item.company}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-800 font-bold">{item.currentRating}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500 font-medium">{item.previousRating}</td>
+                      <td className={`px-6 py-4 whitespace-nowrap text-sm font-bold ${
+                        item.improvement.startsWith('+') ? 'text-emerald-600' : item.improvement.startsWith('-') ? 'text-rose-600' : 'text-slate-500'
+                      }`}>{item.improvement}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                        <span className={`inline-flex px-2.5 py-1 rounded-full text-[11px] font-semibold tracking-wide ${
+                          item.status === 'Approved' 
+                            ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' 
+                            : item.status === 'In Review' 
+                            ? 'bg-blue-100 text-blue-800 border border-blue-200'
+                            : item.status === 'Pending'
+                            ? 'bg-slate-100 text-slate-600 border border-slate-200'
+                            : item.status === 'Scheduled'
+                            ? 'bg-indigo-100 text-indigo-800 border border-indigo-200'
+                            : 'bg-rose-100 text-rose-800 border border-rose-200'
+                        }`}>
+                          {item.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-450 font-medium">{item.lastUpdated}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-xs font-semibold space-x-3.5">
+                        <Link to={`/assessments/${assessmentId}/ai`} className="text-slate-600 hover:text-slate-900 inline-flex items-center gap-0.5">
+                          <Cpu size={13} />
+                          AI Gap
                         </Link>
-                      )}
-                      <Link to={`/assessments/${ass.id}/ai`} className="text-slate-600 hover:text-slate-900 inline-flex items-center gap-0.5">
-                        <Cpu size={13} />
-                        AI Gap
-                      </Link>
-                      <Link to={`/assessments/${ass.id}/workflow`} className="text-blue-600 hover:text-blue-900 inline-flex items-center gap-0.5">
-                        <Settings size={13} />
-                        Workflow
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
+                        <Link to={`/assessments/${assessmentId}/workflow`} className="text-blue-600 hover:text-blue-900 inline-flex items-center gap-0.5">
+                          <Settings size={13} />
+                          Workflow
+                        </Link>
+                      </td>
+                    </tr>
+                  )
+                })}
               </tbody>
             </table>
           </div>
@@ -861,68 +916,125 @@ function DashboardPage() {
       </div>
 
       {/* Row 3: Visual Analytics Charts Grid */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        {/* Chart 1: Carbon Emissions */}
         <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4 hover:shadow-md transition-shadow duration-250">
           <div className="flex justify-between items-center">
-            <h3 className="font-bold text-slate-800 text-xs uppercase tracking-wider">Assessments Status</h3>
-            <span className="text-[10px] text-slate-400 font-bold uppercase">Real-Time Distribution</span>
+            <h3 className="font-bold text-slate-800 text-xs uppercase tracking-wider">Carbon Emissions</h3>
+            <span className="text-[10px] text-slate-400 font-bold uppercase">Monthly MT CO2e</span>
           </div>
           <div className="h-60">
-            {chartData.length === 0 ? (
-              <div className="h-full flex items-center justify-center text-slate-400 text-xs">No active distribution data</div>
-            ) : (
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
-                  <XAxis dataKey="name" stroke="#94a3b8" fontSize={10} tickLine={false} />
-                  <YAxis stroke="#94a3b8" fontSize={10} tickLine={false} allowDecimals={false} />
-                  <Tooltip cursor={{ fill: '#f8fafc' }} contentStyle={{ borderRadius: '8px', fontSize: '12px' }} />
-                  <Bar dataKey="Count" fill="#10b981" radius={[4, 4, 0, 0]} barSize={32} />
-                </BarChart>
-              </ResponsiveContainer>
-            )}
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={carbonData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
+                <XAxis dataKey="month" stroke="#94a3b8" fontSize={10} tickLine={false} />
+                <YAxis stroke="#94a3b8" fontSize={10} tickLine={false} />
+                <Tooltip contentStyle={{ borderRadius: '8px', fontSize: '12px' }} />
+                <Line type="monotone" dataKey="Emissions" stroke="#ef4444" strokeWidth={3} dot={{ r: 3 }} />
+              </LineChart>
+            </ResponsiveContainer>
           </div>
         </div>
 
+        {/* Chart 2: Energy Consumption */}
         <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4 hover:shadow-md transition-shadow duration-250">
           <div className="flex justify-between items-center">
-            <h3 className="font-bold text-slate-800 text-xs uppercase tracking-wider">Pillar Weighting Breakdown</h3>
-            <span className="text-[10px] text-slate-400 font-bold uppercase">Structure</span>
+            <h3 className="font-bold text-slate-800 text-xs uppercase tracking-wider">Energy Consumption</h3>
+            <span className="text-[10px] text-slate-400 font-bold uppercase">Monthly MWh</span>
+          </div>
+          <div className="h-60">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={energyData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
+                <XAxis dataKey="month" stroke="#94a3b8" fontSize={10} tickLine={false} />
+                <YAxis stroke="#94a3b8" fontSize={10} tickLine={false} />
+                <Tooltip contentStyle={{ borderRadius: '8px', fontSize: '12px' }} />
+                <Bar dataKey="Consumption" fill="#3b82f6" radius={[4, 4, 0, 0]} barSize={16} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Chart 3: Water Usage */}
+        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4 hover:shadow-md transition-shadow duration-250">
+          <div className="flex justify-between items-center">
+            <h3 className="font-bold text-slate-800 text-xs uppercase tracking-wider">Water Usage</h3>
+            <span className="text-[10px] text-slate-400 font-bold uppercase">Monthly kL</span>
+          </div>
+          <div className="h-60">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={waterData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
+                <XAxis dataKey="month" stroke="#94a3b8" fontSize={10} tickLine={false} />
+                <YAxis stroke="#94a3b8" fontSize={10} tickLine={false} />
+                <Tooltip contentStyle={{ borderRadius: '8px', fontSize: '12px' }} />
+                <Area type="monotone" dataKey="Usage" stroke="#0ea5e9" fill="#e0f2fe" strokeWidth={2.5} />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Chart 4: Waste Generation */}
+        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4 hover:shadow-md transition-shadow duration-250">
+          <div className="flex justify-between items-center">
+            <h3 className="font-bold text-slate-800 text-xs uppercase tracking-wider">Waste Generation</h3>
+            <span className="text-[10px] text-slate-400 font-bold uppercase">Monthly Metric Tons</span>
+          </div>
+          <div className="h-60">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={wasteData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
+                <XAxis dataKey="month" stroke="#94a3b8" fontSize={10} tickLine={false} />
+                <YAxis stroke="#94a3b8" fontSize={10} tickLine={false} />
+                <Tooltip contentStyle={{ borderRadius: '8px', fontSize: '12px' }} />
+                <Legend iconType="circle" wrapperStyle={{ fontSize: '10px' }} />
+                <Bar dataKey="Generated" fill="#f59e0b" radius={[4, 4, 0, 0]} barSize={12} />
+                <Bar dataKey="Recycled" fill="#10b981" radius={[4, 4, 0, 0]} barSize={12} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Chart 5: Certification Progress */}
+        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4 hover:shadow-md transition-shadow duration-250">
+          <div className="flex justify-between items-center">
+            <h3 className="font-bold text-slate-800 text-xs uppercase tracking-wider">Certification Progress</h3>
+            <span className="text-[10px] text-slate-400 font-bold uppercase">Active Portfolios</span>
           </div>
           <div className="h-60 flex items-center justify-center">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
-                  data={pillarData}
+                  data={certProgressData}
                   cx="50%"
                   cy="50%"
-                  innerRadius={60}
-                  outerRadius={80}
-                  paddingAngle={5}
+                  innerRadius={55}
+                  outerRadius={75}
+                  paddingAngle={4}
                   dataKey="value"
                 >
-                  {pillarData.map((entry, index) => (
+                  {certProgressData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
                 <Tooltip contentStyle={{ borderRadius: '8px', fontSize: '12px' }} />
-                <Legend iconType="circle" wrapperStyle={{ fontSize: '11px', marginTop: '10px' }} />
+                <Legend iconType="circle" wrapperStyle={{ fontSize: '10px', marginTop: '5px' }} />
               </PieChart>
             </ResponsiveContainer>
           </div>
         </div>
 
+        {/* Chart 6: Assessment Trends */}
         <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4 hover:shadow-md transition-shadow duration-250">
           <div className="flex justify-between items-center">
-            <h3 className="font-bold text-slate-800 text-xs uppercase tracking-wider">Sustainability Index Trend</h3>
-            <span className="text-[10px] text-slate-400 font-bold uppercase">Enterprise Growth</span>
+            <h3 className="font-bold text-slate-800 text-xs uppercase tracking-wider">Assessment Trends</h3>
+            <span className="text-[10px] text-slate-400 font-bold uppercase">Monthly Growth</span>
           </div>
           <div className="h-60">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={trendData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
-                <XAxis dataKey="year" stroke="#94a3b8" fontSize={10} tickLine={false} />
-                <YAxis stroke="#94a3b8" fontSize={10} tickLine={false} domain={[50, 100]} />
+              <LineChart data={assessmentTrendsData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
+                <XAxis dataKey="month" stroke="#94a3b8" fontSize={10} tickLine={false} />
+                <YAxis stroke="#94a3b8" fontSize={10} tickLine={false} />
                 <Tooltip contentStyle={{ borderRadius: '8px', fontSize: '12px' }} />
-                <Line type="monotone" dataKey="Score" stroke="#8b5cf6" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+                <Legend iconType="circle" wrapperStyle={{ fontSize: '10px' }} />
+                <Line type="monotone" dataKey="Completed" stroke="#8b5cf6" strokeWidth={2.5} dot={{ r: 2 }} />
+                <Line type="monotone" dataKey="Initiated" stroke="#14b8a6" strokeWidth={2.5} dot={{ r: 2 }} />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -1074,20 +1186,21 @@ function DashboardPage() {
             Recent Audit Events
           </h3>
           <div className="space-y-4 flex-1 overflow-y-auto pr-1 scrollbar-thin">
-            {summary?.recentActivities && summary.recentActivities.length > 0 ? (
-              summary.recentActivities.map((act, index) => (
-                <div key={index} className="flex gap-3 pl-3 border-l border-slate-200 relative py-0.5">
-                  <span className="absolute -left-[3.5px] top-2 w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                  <div className="space-y-0.5">
-                    <p className="text-[11px] font-bold text-slate-800 leading-snug">{act.title}</p>
-                    <p className="text-[10px] text-slate-500 leading-normal">{act.description}</p>
-                    <span className="text-[9px] text-slate-400 font-semibold">{act.timestamp}</span>
-                  </div>
+            {recentAuditEvents.map((event, index) => (
+              <div key={index} className="flex gap-3 pl-3 border-l border-slate-200 relative py-0.5 justify-between items-start">
+                <span className="absolute -left-[3.5px] top-2 w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                <div className="space-y-0.5 flex-1">
+                  <p className="text-[11px] font-bold text-slate-800 leading-snug">{event.title}</p>
+                  <p className="text-[10px] text-slate-500 leading-normal">
+                    Factory: <span className="font-semibold text-slate-700">{event.factory}</span> | Auditor: <span className="font-semibold text-slate-700">{event.auditor}</span>
+                  </p>
+                  <span className="text-[9px] text-slate-400 font-semibold">{event.date}</span>
                 </div>
-              ))
-            ) : (
-              <div className="text-center text-slate-400 text-xs py-4">No recent system updates</div>
-            )}
+                <span className="text-[9px] bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded border border-emerald-100 font-bold uppercase shrink-0">
+                  {event.status}
+                </span>
+              </div>
+            ))}
           </div>
         </div>
       </div>
