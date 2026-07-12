@@ -31,6 +31,7 @@ import AwardsPage from "../pages/AwardsPage";
 import ClimateIntelligencePage from "../pages/ClimateIntelligencePage";
 import InvestmentPlannerPage from "../pages/InvestmentPlannerPage";
 import ResearchHubPage from "../pages/ResearchHubPage";
+import ResearchStandardPage from "../pages/ResearchStandardPage";
 import CollaborationPortalPage from "../pages/CollaborationPortalPage";
 import PartnerMarketplacePage from "../pages/PartnerMarketplacePage";
 
@@ -83,6 +84,10 @@ function AppRoutes() {
           <Route path="/climate-intelligence" element={<ClimateIntelligencePage />} />
           <Route path="/investment-planner" element={<InvestmentPlannerPage />} />
           <Route path="/research-hub" element={<ResearchHubPage />} />
+          <Route
+            path="/research-hub/standards/:standardId"
+            element={<ResearchStandardPage />}
+          />
           <Route path="/collaboration" element={<CollaborationPortalPage />} />
           <Route path="/marketplace" element={<PartnerMarketplacePage />} />
 

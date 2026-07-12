@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { 
   BookOpen, 
   Search, 
@@ -373,6 +374,7 @@ const articlesData = [
 ]
 
 export default function ResearchHubPage() {
+  const navigate = useNavigate()
   // ----------------------------------------------------
   // State Initialization & LocalStorage Safeguards
   // ----------------------------------------------------
@@ -492,21 +494,9 @@ export default function ResearchHubPage() {
 
 
 
-  // Real PDF Browser Tab Opener
   const handleReadFullStandard = (art) => {
     if (!art) return
-    const path = `/pdfs/${art.filename}`
-    fetch(path, { method: 'HEAD' })
-      .then(res => {
-        if (res.ok) {
-          window.open(path, '_blank', 'noopener,noreferrer')
-        } else {
-          toast.error("Document is currently unavailable.")
-        }
-      })
-      .catch(() => {
-        toast.error("Document is currently unavailable.")
-      })
+    navigate(`/research-hub/standards/${art.id}`)
   }
 
   // ----------------------------------------------------
