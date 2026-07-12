@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { jsPDF } from 'jspdf'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import api from '../services/api'
@@ -63,6 +64,19 @@ function AssessmentsPage() {
 
   // UI view state
   const [viewingAssessment, setViewingAssessment] = useState(null)
+  const [previewingDoc, setPreviewingDoc] = useState(null)
+
+  const handleDownloadDoc = (doc, assessment) => {
+    const compName = assessment?.companyName || "SteelCorp Industries"
+    const plantName = assessment?.factoryName || "Chennai Plant"
+    const scoreVal = assessment?.scoreAchieved || 850
+    
+    if (doc.fileName.endsWith('.xlsx') || doc.fileName.endsWith('.xls')) {
+      downloadExcel(doc.fileName, compName, plantName)
+    } else {
+      downloadPdf(doc.fileName, compName, plantName, scoreVal)
+    }
+  }
 
   const isManagement = user?.roles?.some(role => 
     ['ROLE_SUPER_ADMIN', 'ROLE_ADMIN', 'ROLE_GREENCO_COORDINATOR', 'ROLE_GREENCO_ASSESSOR'].includes(role)
@@ -677,13 +691,13 @@ const getDemoDocuments = (assessment) => {
 
                     <div className="flex gap-2">
                       <button 
-                        onClick={() => toast.success(`Viewing ${name} in browser preview...`)}
+                        onClick={() => setPreviewingDoc(doc)}
                         className="px-2.5 py-1 text-[9px] font-bold bg-white border border-slate-200 hover:bg-slate-50 text-slate-650 rounded shadow-sm transition-all cursor-pointer"
                       >
                         View
                       </button>
                       <button 
-                        onClick={() => toast.success(`Downloading ${name}...`)}
+                        onClick={() => handleDownloadDoc(doc, assessment)}
                         className="px-2.5 py-1 text-[9px] font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded shadow-sm transition-all cursor-pointer"
                       >
                         Download
@@ -947,6 +961,14 @@ const getDemoDocuments = (assessment) => {
             )}
           </div>
         </>
+      )}
+
+      {previewingDoc && (
+        <DocPreviewModal 
+          doc={previewingDoc} 
+          onClose={() => setPreviewingDoc(null)} 
+          assessment={viewingAssessment}
+        />
       )}
     </div>
   )
