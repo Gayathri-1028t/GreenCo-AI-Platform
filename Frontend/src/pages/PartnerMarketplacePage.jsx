@@ -7,12 +7,115 @@ import {
   ShieldCheck, 
   Filter, 
   Users, 
-  Briefcase 
+  Briefcase,
+  Clock,
+  X
 } from 'lucide-react'
 import { toast } from 'react-toastify'
 
+const initialEnquiries = [
+  {
+    supplierId: 1,
+    supplierName: 'EcoGrid Solar Solutions',
+    category: 'Renewable Installation',
+    company: 'GreenCo Enterprise Partner',
+    factory: 'Pune AutoForge Phase 1',
+    timestamp: '12 Jul 2026 • 02:45 PM',
+    subject: '2 MW Rooftop Solar Proposal',
+    message: 'Looking for a 2 MW rooftop solar installation proposal.',
+    status: 'Vendor Responded',
+    priority: 'High'
+  },
+  {
+    supplierId: 2,
+    supplierName: 'Chennai Carbon Advisory Group',
+    category: 'ESG Auditing & Consulting',
+    company: 'GreenCo Enterprise Partner',
+    factory: 'Chennai Casting Unit',
+    timestamp: '11 Jul 2026 • 11:30 AM',
+    subject: 'Scope 3 Emission Mapping',
+    message: 'Scope 3 logistics carbon mapping quote requested.',
+    status: 'Meeting Scheduled',
+    priority: 'Medium'
+  },
+  {
+    supplierId: 3,
+    supplierName: 'HydraTech Wastewater Engineering',
+    category: 'Water Recycling systems',
+    company: 'GreenCo Enterprise Partner',
+    factory: 'Coimbatore TexMills',
+    timestamp: '10 Jul 2026 • 09:15 AM',
+    subject: 'Zero Liquid Discharge setup',
+    message: 'Requesting feasibility study for ZLD plant.',
+    status: 'Under Review',
+    priority: 'High'
+  },
+  {
+    supplierId: 4,
+    supplierName: 'Indus Bio-Energy Systems',
+    category: 'Bio-Gas solutions',
+    company: 'GreenCo Enterprise Partner',
+    factory: 'Hosur Food Processing',
+    timestamp: '09 Jul 2026 • 04:20 PM',
+    subject: 'Methane Bio-Digester setup',
+    message: 'Sizing details for organic food waste bio-digester.',
+    status: 'Quote Received',
+    priority: 'Medium'
+  },
+  {
+    supplierId: 5,
+    supplierName: 'GreenCarbon Consulting',
+    category: 'ESG Auditing & Consulting',
+    company: 'GreenCo Enterprise Partner',
+    factory: 'Hyderabad Pharma Lab',
+    timestamp: '08 Jul 2026 • 01:10 PM',
+    subject: 'BRSR Compliance Review',
+    message: 'Assistance needed for SEBI BRSR annual filings review.',
+    status: 'Sent',
+    priority: 'Low'
+  },
+  {
+    supplierId: 6,
+    supplierName: 'AquaPure Recycling',
+    category: 'Water Recycling systems',
+    company: 'GreenCo Enterprise Partner',
+    factory: 'Pune AutoForge Phase 2',
+    timestamp: '07 Jul 2026 • 10:05 AM',
+    subject: 'Cooling Tower Filter Upgrade',
+    message: 'Upgrade quote for closed-loop reverse osmosis filter.',
+    status: 'Closed',
+    priority: 'Low'
+  },
+  {
+    supplierId: 7,
+    supplierName: 'SunVolt Energy Systems',
+    category: 'Renewable Installation',
+    company: 'GreenCo Enterprise Partner',
+    factory: 'Nagpur Foundry Unit',
+    timestamp: '06 Jul 2026 • 03:00 PM',
+    subject: 'Solar Plant Sizing',
+    message: 'On-site solar plant concentrator capacity assessment.',
+    status: 'Vendor Responded',
+    priority: 'High'
+  },
+  {
+    supplierId: 8,
+    supplierName: 'EcoWaste Technologies',
+    category: 'Bio-Gas solutions',
+    company: 'GreenCo Enterprise Partner',
+    factory: 'Bengaluru Packaging Site',
+    timestamp: '05 Jul 2026 • 11:45 AM',
+    subject: 'Sludge composting grid',
+    message: 'Design proposals for organic compost recycling grid.',
+    status: 'Under Review',
+    priority: 'Medium'
+  }
+]
+
 export default function PartnerMarketplacePage() {
   const [searchQuery, setSearchQuery] = useState('')
+  const [enquiries, setEnquiries] = useState(initialEnquiries)
+  const [inquiryPartner, setInquiryPartner] = useState(null)
   const [selectedService, setSelectedService] = useState('')
   const [selectedCert, setSelectedCert] = useState('')
 
@@ -78,6 +181,46 @@ export default function PartnerMarketplacePage() {
       }
       return p
     }))
+  }
+
+  // Handle contact form mock submission inside modal
+  const handleModalSubmit = (e) => {
+    e.preventDefault()
+    if (!inquiryPartner) return
+
+    const message = e.target.elements.message.value
+    const subject = e.target.elements.subject.value
+    const factory = e.target.elements.factory.value
+    const priority = e.target.elements.priority.value
+    const company = "GreenCo Enterprise Partner"
+    
+    const now = new Date()
+    const options = { day: '2-digit', month: 'short', year: 'numeric' }
+    const timeOptions = { hour: '2-digit', minute: '2-digit', hour12: true }
+    const formattedDate = now.toLocaleDateString('en-GB', options)
+    const formattedTime = now.toLocaleTimeString('en-US', timeOptions)
+    const timestamp = `${formattedDate} • ${formattedTime}`
+
+    const newEnquiry = {
+      supplierId: inquiryPartner.id,
+      supplierName: inquiryPartner.name,
+      category: inquiryPartner.service,
+      company: company,
+      factory: factory,
+      timestamp: timestamp,
+      subject: subject,
+      message: message,
+      status: 'Sent',
+      priority: priority
+    }
+
+    // Prepend automatically to the top of Request History
+    setEnquiries(prev => [newEnquiry, ...prev])
+
+    toast.success(`Contact request sent to ${inquiryPartner.name}! They will reply to your registered corporate email shortly.`)
+
+    // Close Modal
+    setInquiryPartner(null)
   }
 
   const filteredPartners = partners.filter(p => {
@@ -199,6 +342,12 @@ export default function PartnerMarketplacePage() {
                   <span className="text-slate-400 font-semibold">{p.location}</span>
                   <div className="flex gap-2">
                     <button
+                      onClick={(e) => { e.stopPropagation(); setInquiryPartner(p); }}
+                      className="px-2 py-0.5 rounded border border-emerald-200 hover:bg-emerald-50 bg-white text-emerald-700 text-[9px] font-black uppercase tracking-wider cursor-pointer transition-colors"
+                    >
+                      ✉ Inquire
+                    </button>
+                    <button
                       onClick={(e) => { e.stopPropagation(); handleToggleShortlist(p.id); }}
                       className={`px-2 py-0.5 rounded border transition-colors text-[9px] font-black uppercase tracking-wider cursor-pointer ${
                         p.shortlisted 
@@ -258,42 +407,208 @@ export default function PartnerMarketplacePage() {
             </div>
           </div>
 
-          {/* Shortlisted Contractors (1/3 width) */}
-          <div className="lg:col-span-1 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-            <div>
-              <h3 className="font-bold text-slate-800 text-xs uppercase tracking-wider flex items-center gap-1.5">
-                <Users size={15} className="text-indigo-650" />
-                Shortlisted Contractors
-              </h3>
-              <p className="text-[10px] text-slate-400">List of saved suppliers.</p>
+          {/* Right Column containing Shortlist & Request History widgets (1/3 width) */}
+          <div className="lg:col-span-1 space-y-6">
+            
+            {/* Shortlisted Contractors */}
+            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+              <div>
+                <h3 className="font-bold text-slate-800 text-xs uppercase tracking-wider flex items-center gap-1.5">
+                  <Users size={15} className="text-indigo-650" />
+                  Shortlisted Contractors
+                </h3>
+                <p className="text-[10px] text-slate-400">List of saved suppliers.</p>
+              </div>
+
+              <div className="space-y-3">
+                {partners.filter(p => p.shortlisted).length === 0 ? (
+                  <p className="text-center text-[10px] text-slate-400 py-2">No vendors saved in shortlist</p>
+                ) : (
+                  partners
+                    .filter(p => p.shortlisted)
+                    .map(p => (
+                      <div key={p.id} className="flex justify-between items-center text-xs border-b border-slate-100 pb-2">
+                        <div>
+                          <p className="font-bold text-slate-850 truncate max-w-[150px]">{p.name}</p>
+                          <p className="text-[8px] text-slate-400 font-bold">{p.service}</p>
+                        </div>
+                        <button
+                          onClick={() => handleToggleShortlist(p.id)}
+                          className="text-[9px] text-rose-600 font-bold hover:underline bg-transparent border-none outline-none cursor-pointer"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ))
+                )}
+              </div>
             </div>
 
-            <div className="space-y-3">
-              {partners.filter(p => p.shortlisted).length === 0 ? (
-                <p className="text-center text-[10px] text-slate-400 py-2">No vendors saved in shortlist</p>
-              ) : (
-                partners
-                  .filter(p => p.shortlisted)
-                  .map(p => (
-                    <div key={p.id} className="flex justify-between items-center text-xs border-b border-slate-100 pb-2">
-                      <div>
-                        <p className="font-bold text-slate-850 truncate max-w-[150px]">{p.name}</p>
-                        <p className="text-[8px] text-slate-400 font-bold">{p.service}</p>
+            {/* Request History Card */}
+            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 className="font-bold text-slate-800 text-xs uppercase tracking-wider flex items-center gap-1.5">
+                  <Clock size={15} className="text-emerald-600" />
+                  Request History
+                </h3>
+                <span className="text-[9px] bg-slate-100 font-mono text-slate-450 px-2 py-0.5 rounded font-black uppercase">
+                  {enquiries.length} requests
+                </span>
+              </div>
+              
+              {/* Scrollable Container (more than 5 entries) */}
+              <div className="space-y-3 mt-3 max-h-[360px] overflow-y-auto pr-1">
+                {enquiries.length === 0 ? (
+                  <p className="text-center text-[10px] text-slate-400 py-4">No enquiries sent yet.</p>
+                ) : (
+                  enquiries.map((enq, index) => (
+                    <div key={index} className="p-3 bg-slate-50/70 hover:bg-slate-50 border border-slate-150 rounded-xl space-y-2 text-xs font-semibold text-slate-650 transition-colors">
+                      <div className="flex justify-between items-start gap-2">
+                        <span className="font-extrabold text-slate-800 truncate block leading-snug">{enq.supplierName}</span>
+                        <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-[8px] font-black uppercase border shrink-0 ${
+                          enq.status === 'Vendor Responded' ? 'bg-green-50 text-green-700 border-green-200' :
+                          enq.status === 'Sent' ? 'bg-blue-55 text-blue-700 border-blue-200' :
+                          enq.status === 'Under Review' ? 'bg-orange-50 text-orange-700 border-orange-200' :
+                          enq.status === 'Meeting Scheduled' ? 'bg-purple-50 text-purple-700 border-purple-200' :
+                          enq.status === 'Quote Received' ? 'bg-teal-50 text-teal-700 border-teal-200' :
+                          'bg-slate-50 text-slate-500 border-slate-200'
+                        }`}>
+                          {enq.status}
+                        </span>
                       </div>
-                      <button
-                        onClick={() => handleToggleShortlist(p.id)}
-                        className="text-[9px] text-rose-600 font-bold hover:underline bg-transparent border-none outline-none cursor-pointer"
-                      >
-                        Remove
-                      </button>
+                      <p className="text-[8px] text-slate-450 uppercase block font-bold leading-none tracking-wider">{enq.category}</p>
+                      <p className="text-[10px] text-slate-650 font-medium leading-relaxed bg-white p-2 rounded border border-slate-100 line-clamp-2">
+                        "{enq.message}"
+                      </p>
+                      <div className="flex justify-between items-center text-[8px] text-slate-400 border-t border-slate-100 pt-1.5">
+                        <span>Fac: {enq.factory}</span>
+                        <span className="font-mono">{enq.timestamp}</span>
+                      </div>
                     </div>
                   ))
-              )}
+                )}
+              </div>
             </div>
+
           </div>
         </div>
 
       </div>
+
+      {/* Inquiry Modal */}
+      {inquiryPartner && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl w-full max-w-md p-6 space-y-4 relative overflow-hidden text-xs">
+            
+            <div className="flex justify-between items-start">
+              <div>
+                <h3 className="font-black text-slate-900 text-sm tracking-tight flex items-center gap-1.5">
+                  <Clock size={16} className="text-emerald-600" />
+                  Quick Quote Inquiry
+                </h3>
+                <p className="text-[10px] text-slate-400 mt-0.5">Send a formal enquiry to {inquiryPartner.name}.</p>
+              </div>
+              <button 
+                onClick={() => setInquiryPartner(null)}
+                className="w-6 h-6 rounded-full border border-slate-200 hover:bg-slate-50 flex items-center justify-center text-slate-400 transition-colors cursor-pointer"
+              >
+                <X size={12} />
+              </button>
+            </div>
+
+            <form onSubmit={handleModalSubmit} className="space-y-4 text-xs font-semibold text-slate-650">
+              <div className="space-y-1">
+                <label className="block text-[8px] font-bold text-slate-450 uppercase tracking-wider">Supplier Name</label>
+                <input 
+                  type="text" 
+                  disabled
+                  value={inquiryPartner.name}
+                  className="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-[10px] font-bold text-slate-500"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="block text-[8px] font-bold text-slate-450 uppercase tracking-wider">Service Category</label>
+                <input 
+                  type="text" 
+                  disabled
+                  value={inquiryPartner.service}
+                  className="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-[10px] font-bold text-slate-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="block text-[8px] font-bold text-slate-450 uppercase tracking-wider">Factory Facility</label>
+                  <select 
+                    name="factory"
+                    required
+                    className="w-full px-3 py-1.5 bg-slate-55 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-emerald-500 text-[10px] font-bold text-slate-650"
+                  >
+                    <option value="Pune AutoForge Phase 1">Pune AutoForge Phase 1</option>
+                    <option value="Pune AutoForge Phase 2">Pune AutoForge Phase 2</option>
+                    <option value="Chennai Casting Unit">Chennai Casting Unit</option>
+                    <option value="Coimbatore TexMills">Coimbatore TexMills</option>
+                    <option value="Nagpur Foundry Unit">Nagpur Foundry Unit</option>
+                    <option value="Bengaluru Packaging Site">Bengaluru Packaging Site</option>
+                  </select>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="block text-[8px] font-bold text-slate-450 uppercase tracking-wider">Priority Level</label>
+                  <select 
+                    name="priority"
+                    required
+                    className="w-full px-3 py-1.5 bg-slate-55 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-emerald-500 text-[10px] font-bold text-slate-650"
+                  >
+                    <option value="High">High Priority</option>
+                    <option value="Medium">Medium Priority</option>
+                    <option value="Low">Low Priority</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="block text-[8px] font-bold text-slate-450 uppercase tracking-wider">Request Subject</label>
+                <input 
+                  type="text" 
+                  name="subject"
+                  required
+                  placeholder="e.g., 2 MW Solar Panel Installation feasibility quote"
+                  className="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-emerald-500 text-[10px] font-semibold text-slate-750"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="block text-[8px] font-bold text-slate-450 uppercase tracking-wider">Enquiry Message Details</label>
+                <textarea 
+                  name="message"
+                  rows="3" 
+                  required
+                  placeholder="Provide specifications, target budget cap-ex bounds, and timeline targets..."
+                  className="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-emerald-500 text-[10px] font-semibold text-slate-750"
+                />
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setInquiryPartner(null)}
+                  className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-650 rounded-xl text-[10px] font-bold transition-all cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-[10px] font-bold shadow transition-all cursor-pointer"
+                >
+                  Submit Enquiry
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
