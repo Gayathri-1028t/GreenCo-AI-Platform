@@ -114,7 +114,8 @@ function LoginPage() {
     setIsSubmitting(true)
 
     if (DEMO_MODE) {
-      if (data.email === 'admin@greenco.org' && data.password === 'AdminPass123!') {
+      const storedPassword = localStorage.getItem('greenco_user_password') || 'AdminPass123!'
+      if (data.email === 'admin@greenco.org' && data.password === storedPassword) {
         const header = btoa(JSON.stringify({ alg: "HS256", typ: "JWT" }))
         const payload = btoa(JSON.stringify({
           sub: "admin@greenco.org",

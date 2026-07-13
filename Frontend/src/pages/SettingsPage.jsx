@@ -1,10 +1,13 @@
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useAuthStore } from '../store/useAuthStore'
 import { toast } from 'react-toastify'
-import { User, Shield, KeyRound, Save } from 'lucide-react'
+import { User, Shield, KeyRound, Save, Loader2 } from 'lucide-react'
 
 function SettingsPage() {
-  const { user } = useAuthStore()
+  const { user, updateUser } = useAuthStore()
+  const [isUpdatingProfile, setIsUpdatingProfile] = useState(false)
+  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false)
   
   const { 
     register, 
@@ -26,20 +29,69 @@ function SettingsPage() {
     formState: { errors: errorsPass }
   } = useForm()
 
-  const onUpdateProfile = (data) => {
-    // In a production setup, this calls PATCH /users/profile.
-    // For local testing, we simulate success and notify the user.
-    toast.success('Profile details updated successfully')
+  const onUpdateProfile = async (data) => {
+    if (isUpdatingProfile) return
+    setIsUpdatingProfile(true)
+    
+    // Simulate API network latency
+    await new Promise(resolve => setTimeout(resolve, 800))
+    
+    try {
+      const updatedUser = {
+        ...user,
+        firstName: data.firstName.trim(),
+        lastName: data.lastName.trim()
+      }
+      
+      updateUser(updatedUser)
+      toast.success('Profile updated successfully.')
+    } catch (err) {
+      toast.error('Failed to update profile.')
+    } finally {
+      setIsUpdatingProfile(false)
+    }
   }
 
-  const onChangePassword = (data) => {
-    if (data.newPassword !== data.confirmPassword) {
-      toast.error('New passwords do not match')
+  const onChangePassword = async (data) => {
+    if (isUpdatingPassword) return
+    
+    // 1. Current password check
+    const storedPassword = localStorage.getItem('greenco_user_password') || 'AdminPass123!'
+    if (data.currentPassword !== storedPassword) {
+      toast.error('Current password is incorrect.')
       return
     }
-    // In a production setup, this calls POST /auth/change-password.
-    toast.success('Password updated successfully')
-    resetPass()
+
+    // 2. Weak password check (minimum 8 characters)
+    if (data.newPassword.length < 8) {
+      toast.error('Password must contain at least 8 characters.')
+      return
+    }
+
+    // 3. Confirm password check
+    if (data.newPassword !== data.confirmPassword) {
+      toast.error('Passwords do not match.')
+      return
+    }
+
+    setIsUpdatingPassword(true)
+    
+    // Simulate API network latency
+    await new Promise(resolve => setTimeout(resolve, 800))
+
+    try {
+      localStorage.setItem('greenco_user_password', data.newPassword)
+      toast.success('Password updated successfully.')
+      resetPass({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: ''
+      })
+    } catch (err) {
+      toast.error('Failed to update password.')
+    } finally {
+      setIsUpdatingPassword(false)
+    }
   }
 
   return (
@@ -90,10 +142,11 @@ function SettingsPage() {
 
           <button
             type="submit"
-            className="w-full mt-4 py-2 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-semibold text-sm shadow-sm transition-all flex items-center justify-center gap-2"
+            disabled={isUpdatingProfile}
+            className="w-full mt-4 py-2 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-semibold text-sm shadow-sm transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
-            <Save size={16} />
-            Save Profile
+            {isUpdatingProfile ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+            {isUpdatingProfile ? 'Saving...' : 'Save Profile'}
           </button>
         </form>
 
@@ -118,7 +171,7 @@ function SettingsPage() {
             <label className="block text-xs font-semibold text-slate-500 uppercase">New Password</label>
             <input
               type="password"
-              {...registerPass('newPassword', { required: 'Required', minLength: { value: 6, message: 'Minimum 6 characters' } })}
+              {...registerPass('newPassword', { required: 'Required' })}
               className="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-lg sm:text-sm"
             />
             {errorsPass.newPassword && <p className="text-xs text-red-600 mt-1">{errorsPass.newPassword.message}</p>}
@@ -136,10 +189,11 @@ function SettingsPage() {
 
           <button
             type="submit"
-            className="w-full mt-4 py-2 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-semibold text-sm shadow-sm transition-all flex items-center justify-center gap-2"
+            disabled={isUpdatingPassword}
+            className="w-full mt-4 py-2 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-semibold text-sm shadow-sm transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
-            <Save size={16} />
-            Update Password
+            {isUpdatingPassword ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+            {isUpdatingPassword ? 'Updating...' : 'Update Password'}
           </button>
         </form>
       </div>
