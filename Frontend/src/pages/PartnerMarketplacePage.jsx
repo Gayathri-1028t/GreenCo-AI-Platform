@@ -10,7 +10,8 @@ import {
   Filter, 
   ArrowRight, 
   Users, 
-  Briefcase 
+  Briefcase,
+  Clock 
 } from 'lucide-react'
 import { toast } from 'react-toastify'
 
@@ -73,6 +74,8 @@ export default function PartnerMarketplacePage() {
 
   // Selected partner for contact / details card
   const [selectedPartner, setSelectedPartner] = useState(partners[0])
+  const [enquiries, setEnquiries] = useState([])
+  const [successModalData, setSuccessModalData] = useState(null)
 
   // Toggle shortlist status
   const handleToggleShortlist = (id) => {
@@ -89,7 +92,32 @@ export default function PartnerMarketplacePage() {
   // Handle contact form mock submission
   const handleContactSubmit = (e) => {
     e.preventDefault()
+    if (!selectedPartner) return
+
+    const message = e.target.elements.message.value
+    const company = "GreenCo Enterprise Partner"
+    const timestamp = new Date().toLocaleString()
+
+    const newEnquiry = {
+      supplierId: selectedPartner.id,
+      supplierName: selectedPartner.name,
+      category: selectedPartner.service,
+      message: message,
+      company: company,
+      timestamp: timestamp,
+      status: "SENT"
+    }
+
+    setEnquiries(prev => [newEnquiry, ...prev])
+    setSuccessModalData(newEnquiry)
+
     toast.success(`Contact request sent to ${selectedPartner.name}! They will reply to your registered corporate email shortly.`)
+
+    // Clear form
+    e.target.reset()
+
+    // Close the enquiry panel
+    setSelectedPartner(null)
   }
 
   const filteredPartners = partners.filter(p => {
@@ -278,46 +306,55 @@ export default function PartnerMarketplacePage() {
         <div className="xl:col-span-3 space-y-6">
           
           {/* Vendor Details & Contact Form */}
-          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-            <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
-              <Mail size={18} className="text-emerald-600" />
-              <div>
-                <h3 className="font-bold text-slate-800 text-xs uppercase tracking-wider">Inquire Supplier</h3>
-                <p className="text-[9px] text-slate-400">Send contact request to partner.</p>
-              </div>
-            </div>
-
-            <div className="space-y-4 text-xs font-semibold text-slate-650 leading-relaxed">
-              <div className="space-y-1">
-                <span className="text-[9px] text-slate-400 font-bold uppercase block">Partner Selected</span>
-                <h4 className="text-slate-800 font-extrabold text-sm">{selectedPartner.name}</h4>
+          {selectedPartner ? (
+            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+              <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
+                <Mail size={18} className="text-emerald-600" />
+                <div>
+                  <h3 className="font-bold text-slate-800 text-xs uppercase tracking-wider">Inquire Supplier</h3>
+                  <p className="text-[9px] text-slate-400">Send contact request to partner.</p>
+                </div>
               </div>
 
-              <div className="p-3 bg-slate-50 border border-slate-150 rounded-xl">
-                <p className="text-[10px] font-medium leading-relaxed">{selectedPartner.description}</p>
-              </div>
-
-              <form onSubmit={handleContactSubmit} className="space-y-3.5 pt-2">
+              <div className="space-y-4 text-xs font-semibold text-slate-650 leading-relaxed">
                 <div className="space-y-1">
-                  <label className="block text-[8px] font-bold text-slate-450 uppercase tracking-wider">Message Description</label>
-                  <textarea 
-                    rows="3" 
-                    required
-                    placeholder="Describe project CapEx limits and location requirements..."
-                    className="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-emerald-500 text-[10px] font-semibold text-slate-750"
-                  />
+                  <span className="text-[9px] text-slate-400 font-bold uppercase block">Partner Selected</span>
+                  <h4 className="text-slate-800 font-extrabold text-sm">{selectedPartner.name}</h4>
                 </div>
 
-                <button
-                  type="submit"
-                  className="w-full py-2 bg-gradient-to-r from-emerald-600 to-teal-500 text-white rounded-xl text-[10px] font-bold shadow hover:shadow-md transition-all flex items-center justify-center gap-1 cursor-pointer select-none"
-                >
-                  Request Information Quote
-                  <ArrowRight size={11} />
-                </button>
-              </form>
+                <div className="p-3 bg-slate-50 border border-slate-150 rounded-xl">
+                  <p className="text-[10px] font-medium leading-relaxed">{selectedPartner.description}</p>
+                </div>
+
+                <form onSubmit={handleContactSubmit} className="space-y-3.5 pt-2">
+                  <div className="space-y-1">
+                    <label className="block text-[8px] font-bold text-slate-450 uppercase tracking-wider">Message Description</label>
+                    <textarea 
+                      name="message"
+                      rows="3" 
+                      required
+                      placeholder="Describe project CapEx limits and location requirements..."
+                      className="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-emerald-500 text-[10px] font-semibold text-slate-750"
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="w-full py-2 bg-gradient-to-r from-emerald-600 to-teal-500 text-white rounded-xl text-[10px] font-bold shadow hover:shadow-md transition-all flex items-center justify-center gap-1 cursor-pointer select-none"
+                  >
+                    Request Information Quote
+                    <ArrowRight size={11} />
+                  </button>
+                </form>
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="bg-slate-50 p-6 rounded-2xl border border-dashed border-slate-250 text-center text-slate-450 space-y-2">
+              <Mail className="mx-auto text-slate-300" size={24} />
+              <p className="text-xs font-semibold text-slate-700">No partner selected for inquiry</p>
+              <p className="text-[10px] text-slate-400">Select any partner card from the directory to start a request.</p>
+            </div>
+          )}
 
           {/* Shortlisted locker */}
           <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
@@ -353,9 +390,93 @@ export default function PartnerMarketplacePage() {
             </div>
           </div>
 
+          {/* Request History Card */}
+          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+            <div>
+              <h3 className="font-bold text-slate-800 text-xs uppercase tracking-wider flex items-center gap-1.5">
+                <Clock size={15} className="text-emerald-600" />
+                Request History
+              </h3>
+              <p className="text-[10px] text-slate-400">Track sent enquiries and quotes.</p>
+            </div>
+
+            <div className="space-y-3 max-h-48 overflow-y-auto">
+              {enquiries.length === 0 ? (
+                <p className="text-center text-[10px] text-slate-400 py-2">No enquiries sent yet</p>
+              ) : (
+                enquiries.map((enq, index) => (
+                  <div key={index} className="p-2.5 bg-slate-50 border border-slate-150 rounded-xl space-y-1.5 text-xs">
+                    <div className="flex justify-between items-center text-[10px]">
+                      <span className="font-bold text-slate-800 truncate max-w-[130px]">{enq.supplierName}</span>
+                      <span className="bg-emerald-100 text-emerald-850 px-1.5 py-0.5 rounded font-black uppercase text-[8px]">{enq.status}</span>
+                    </div>
+                    <p className="text-[9px] text-slate-500 font-medium line-clamp-1">{enq.message}</p>
+                    <div className="flex justify-between items-center text-[8px] text-slate-400">
+                      <span>{enq.category}</span>
+                      <span>{enq.timestamp}</span>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
         </div>
 
       </div>
+
+      {/* Success Modal Overlay */}
+      {successModalData && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl w-full max-w-lg p-6 space-y-4 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full -mr-8 -mt-8" />
+            
+            <div className="flex items-start space-x-3.5">
+              <div className="w-10 h-10 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 shrink-0">
+                <CheckCircle size={20} />
+              </div>
+              <div className="space-y-1 truncate">
+                <h3 className="text-sm font-black text-slate-850 tracking-tight">Contact request sent to {successModalData.supplierName}!</h3>
+                <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">They will reply to your registered corporate email shortly.</p>
+              </div>
+            </div>
+
+            {/* Email Preview Frame */}
+            <div className="bg-slate-50 border border-slate-150 rounded-xl overflow-hidden text-[10px] font-semibold text-slate-650">
+              <div className="bg-slate-100 px-3.5 py-2 border-b border-slate-150 font-bold text-slate-450 uppercase tracking-wider flex justify-between">
+                <span>Auto-Generated Email Dispatch</span>
+                <span className="text-emerald-700">● STAGED OUTBOX</span>
+              </div>
+              <div className="p-3.5 space-y-2 text-xs">
+                <div className="flex justify-between border-b border-slate-100 pb-1.5 text-[10px]">
+                  <span className="text-slate-400">To:</span>
+                  <span className="font-bold text-slate-800">info@{successModalData.supplierName.toLowerCase().replace(/[^a-z0-9]/g, '')}.com</span>
+                </div>
+                <div className="flex justify-between border-b border-slate-100 pb-1.5 text-[10px]">
+                  <span className="text-slate-400">Subject:</span>
+                  <span className="font-bold text-slate-800">Information Quote Enquiry - GreenCo Platform</span>
+                </div>
+                <div className="pt-1 text-slate-550 leading-relaxed italic bg-white p-2.5 rounded border border-slate-100 text-[10px]">
+                  "Hello {successModalData.supplierName} Team,<br/><br/>
+                  We would like to request an information quote regarding your '{successModalData.category}' services.<br/><br/>
+                  Message description: {successModalData.message}<br/><br/>
+                  Best regards,<br/>
+                  {successModalData.company}"
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end pt-2 border-t border-slate-100">
+              <button
+                onClick={() => setSuccessModalData(null)}
+                className="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-[10px] font-bold shadow-md transition-all cursor-pointer"
+              >
+                Close Receipt
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
